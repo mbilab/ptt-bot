@@ -144,7 +144,7 @@ References
 * [**Learning Advanced JavaScript by John Resig**][R5]
 * [**Telnet 協定簡易介紹 Powerpoint**][R6]
 * [**Telnet Keyboard Equivalents**][R7]
-* [**Discussion in leaking problem of received data **][R8]
+* [**Discussion in leaking problem of received data**][R8]
 
 [R1]: http://dspace.lib.fcu.edu.tw/handle/2377/4110 
 [R2]: https://code.google.com/p/pcmanfx/
