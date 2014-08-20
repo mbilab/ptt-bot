@@ -1,10 +1,8 @@
-//node package
 var net = require('net');
 var iconv = require('iconv-lite'); 
 var S = require('string');
 var fs = require('fs');
 
-//test
 /** Regular Expression && Pattern **/
 const AnsiSetDisplayAttr = /\[(\d+)*;*(\d+)*;*(\d+)*;*(\d+)*[mHK]/g ;
 const ArticleListStart = /\s人氣:[0-9]{1,5}\s/ ;
@@ -71,8 +69,8 @@ function login(id, ps, callback){
 				for(var _=0;_<g_screenBufRow.length;_++){
 					g_screenBuf += g_screenBufRow[_] + '\r\n';
 				}
-				g_conn.emit('executeCallback');
-				g_conn.emit('getCommand');
+				executeCallback();
+				getCommand();
 			}
 			else{
 				var nullScreenRow = [' null_row;'].concat(S(nullScreen).lines());
@@ -82,11 +80,12 @@ function login(id, ps, callback){
 					g_screenBuf += g_screenBufRow[_] + '\r\n';
 				}
 				collectArticle(); 
-				g_conn.emit('collectNextPage');
+				collectNextPage();
 			}
 		}
 	});
 	//send PttCommands to PttSever. 
+	/*
 	g_conn.addListener('getCommand',function(){
 		if(g_commandsObj.PttCommands.length != 0){	
 			var PttCommand = g_commandsObj.PttCommands.shift();
@@ -113,6 +112,7 @@ function login(id, ps, callback){
 			g_articleBuf= '';
 		}
 	});
+	*/
 	return g_conn;
 }
 function toArticle(NumStr,callback){
@@ -248,6 +248,30 @@ exports.fetchArticle = fetchArticle;
 /*****
 	private function
 *****/
+function executeCallback(){
+	g_commandsObj.callbacks.shift()();
+}
+function getCommand(){
+	if(g_commandsObj.PttCommands.length != 0){	
+		var PttCommand = g_commandsObj.PttCommands.shift();
+		g_conn.write(PttCommand);	
+	}
+	else {
+		g_conn.removeAllListeners('data');
+		g_conn.end();
+	}	
+}
+function collectNextPage(){
+	if(g_inArticle) {
+		g_conn.write(Right+CtrlL);
+	}
+	else{
+		g_conn.emit('executeCallback');
+		g_conn.write(Left);	//goes back to 【文章列表】
+		g_conn.emit('getCommand');
+		g_articleBuf= '';
+	}
+}
 function collectArticle(){
 	var row = S(g_screenBuf).between(ArticleIndexStart,ArticleIndexEnd).replaceAll(' ', '"').replaceAll('~', '","').s; 
 	var rowStart = parseInt(S(row).parseCSV()[0]==1 ? 0 : S(row).parseCSV()[0]);
