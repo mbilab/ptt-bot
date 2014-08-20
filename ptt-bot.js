@@ -4,6 +4,7 @@ var iconv = require('iconv-lite');
 var S = require('string');
 var fs = require('fs');
 
+//test
 /** Regular Expression && Pattern **/
 const AnsiSetDisplayAttr = /\[(\d+)*;*(\d+)*;*(\d+)*;*(\d+)*[mHK]/g ;
 const ArticleListStart = /\s人氣:[0-9]{1,5}\s/ ;
