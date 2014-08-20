@@ -80,7 +80,7 @@ function login(id, ps, callback){
 					g_screenBuf += g_screenBufRow[_] + '\r\n';
 				}
 				collectArticle(); 
-				collectNextPage();
+				moveToNextPage();
 			}
 		}
 	});
@@ -107,31 +107,29 @@ function where(){
 	/**FIXME**/
 	var screenStr = iconv.decode(iconv.encode(g_screenBuf,'big5'),'big5');
 	if (screenStr.indexOf("主功能表") != -1){
-		return '【主功能表】';
+		return Main;
 	}
 	else if(screenStr.indexOf("文章選讀") != -1 && screenStr.indexOf("進板畫面") != -1){
-		return '【文章列表】';
+		return ArticleList;
 	}
 	else if(screenStr.indexOf("目前顯示") != -1 && screenStr.indexOf("瀏覽 第") != -1){
-		return '【文章內】';
-	}
-	else if(screenStr.indexOf("文章代碼") != -1){
-		return '【文章代碼】';
+		return Article;
 	}
 	else if(screenStr.indexOf("只列最愛") != -1){
-		return '【熱門看板列表】';
+		return HotBoard;
 	}
 	else if(screenStr.indexOf("看板列") != -1 && screenStr.indexOf("增加看板") != -1){
-		return '【我的最愛看板列表】';
+		return FavBoard;
 	}
 	else if(screenStr.indexOf("加入/移出最愛") != -1){
-		return '【看板列表】';
+		return BoardList;
 	}
 	else if(screenStr.indexOf("即時熱門看板") != -1){
-		return '【分類看板】';
+		return BoardClass;
 	}
 	else{
-		return 'where()迷路了,找不到你在哪..';
+		console.log("Error: where can't find where you are.");
+		return false;
 	}
 }
 function escapeANSI(str){
@@ -143,10 +141,6 @@ function pressAnyKey(callback){
 function toBoard( BoardName,callback ){
 	var command = 's' + BoardName + '\r';
 	addCommands(command,callback);
-}
-function BoardtoArticle(NumStr){
-	/**FIXME**/
-	g_conn.write(NumStr+'\r\r');
 }
 function sendCtrlL(callback){
 	addCommands('\u000c',callback);	
@@ -203,7 +197,6 @@ exports.escapeANSI = escapeANSI;
 exports.toBoard = toBoard;
 exports.toArticle = toArticle;
 exports.toArticlesList = toBoard;
-exports.BoardtoArticle = BoardtoArticle;
 exports.sendCtrlL = sendCtrlL;
 exports.sendPageUp = sendPageUp;
 exports.sendPageDown = sendPageDown;
@@ -232,7 +225,7 @@ function getCommand(){
 		g_conn.end();
 	}	
 }
-function collectNextPage(){
+function moveToNextPage(){
 	if(g_inArticle) {
 		g_conn.write(Right+CtrlL);
 	}
