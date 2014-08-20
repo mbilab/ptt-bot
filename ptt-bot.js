@@ -84,35 +84,6 @@ function login(id, ps, callback){
 			}
 		}
 	});
-	//send PttCommands to PttSever. 
-	/*
-	g_conn.addListener('getCommand',function(){
-		if(g_commandsObj.PttCommands.length != 0){	
-			var PttCommand = g_commandsObj.PttCommands.shift();
-			g_conn.write(PttCommand);	
-		}
-		else {
-			g_conn.removeAllListeners('data');
-			g_conn.end();
-		}	
-	});
-	//emit event for execute callback
-	g_conn.addListener('executeCallback',function(){
-		g_commandsObj.callbacks.shift()();
-	});
-	//send command for next page
-	g_conn.addListener('collectNextPage',function(){
-		if(g_inArticle) {
-			g_conn.write(Right+CtrlL);
-		}
-		else{
-			g_conn.emit('executeCallback');
-			g_conn.write(Left);	//goes back to 【文章列表】
-			g_conn.emit('getCommand');
-			g_articleBuf= '';
-		}
-	});
-	*/
 	return g_conn;
 }
 function toArticle(NumStr,callback){
