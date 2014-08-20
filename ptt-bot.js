@@ -1,3 +1,4 @@
+//node package
 var net = require('net');
 var iconv = require('iconv-lite'); 
 var S = require('string');
