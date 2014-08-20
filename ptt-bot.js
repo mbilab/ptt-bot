@@ -266,9 +266,9 @@ function collectNextPage(){
 		g_conn.write(Right+CtrlL);
 	}
 	else{
-		g_conn.emit('executeCallback');
+		executeCallback();
 		g_conn.write(Left);	//goes back to 【文章列表】
-		g_conn.emit('getCommand');
+		getCommand();
 		g_articleBuf= '';
 	}
 }
