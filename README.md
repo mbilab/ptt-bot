@@ -6,6 +6,22 @@ PTT-BOT
 
 Ptt-bot is an open source node.js project for crawling data from **PTT**[4].
 
+
+Require
+----------
+#### **String.js **####
+*Installation*
+ 
+	npm install --save string
+	
+
+#### **iconv-lite **####
+*Installation*
+ 
+	npm install iconv-lite
+	
+
+
 [1]: http://zh.wikipedia.org/wiki/JavaScript
 [2]: http://courses.ywdeng.idv.tw/cust/2011/np/PPT/CH08-telnet.ppt
 [3]: http://zh.wikipedia.org/zh-tw/%E5%A4%A7%E4%BA%94%E7%A2%BC
