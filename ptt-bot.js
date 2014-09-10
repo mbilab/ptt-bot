@@ -1,3 +1,4 @@
+/** node modulus **/
 var net = require('net');
 var iconv = require('iconv-lite'); 
 var S = require('string');
@@ -86,6 +87,8 @@ function login(id, ps, callback){
 	});
 	return g_conn;
 }
+function reformScreen(){
+}
 function toArticle(NumStr,callback){
 	var command = NumStr+'\r\r';
 	addCommands(command,callback);
@@ -143,7 +146,7 @@ function toBoard( BoardName,callback ){
 	addCommands(command,callback);
 }
 function sendCtrlL(callback){
-	addCommands('\u000c',callback);	
+	addCommands(CtrlL,callback);	
 }
 function sendPageUp(callback){
 	addCommands(PageUp,callback);	
@@ -399,6 +402,7 @@ function processBeforeMain(newdataStr, id, ps){
 		g_afterMain = true;
 	}	
 }
+
 function parseNewdata(ScreenRow,newdataStr){
 	//spilt all new data into sequence. 
 	var cursor = {row: 1, col: 1}; //origin cursor
