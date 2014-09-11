@@ -64,63 +64,25 @@ function login(id, ps, callback){
 	});
 	g_conn.addListener('data', function(data){
 		var newdataStr = iconv.decode(data,'big5');
-		switch(g_workingState){
+		switch( g_workingState ){
 			case ExcutingLogin :
 				loginDataHandler(newdataStr, id, ps);
 				break;
 			case LoadNextPttbotComand :
-				//parse new data and mimic terminal screen. 
-				var nullScreenRow = [' null_row;'].concat(S(nullScreen).lines());
-				g_screenBufRow = (g_screenBuf!='wait...' ? parseNewdata(g_screenBufRow,newdataStr) : parseNewdata(nullScreenRow,newdataStr));
-				g_screenBuf = '';
-				for(var _=0;_<g_screenBufRow.length;_++){
-					g_screenBuf += g_screenBufRow[_] + '\r\n';
-				}
-				executeCallback();
+				refreshScreen(newdataStr);
+				executePriorCallback();
 				sendCommand();
 				break;
 			case CollectingArticle :
-				var nullScreenRow = [' null_row;'].concat(S(nullScreen).lines());
-				g_screenBufRow = parseNewdata(nullScreenRow,newdataStr);
-				g_screenBuf = '';
-				for(var _=0;_<g_screenBufRow.length;_++){
-					g_screenBuf += g_screenBufRow[_] + '\r\n';
-				}
+				refreshScreen(newdataStr);
 				collectArticle(); 
 				moveToNextPage();
 				break;
 			default :
 				//do nothing
 		}
-		//processBeforeMain(newdataStr, id, ps);
-		/*
-		if(g_afterMain){
-			if(!g_inArticle){
-				//parse new data and mimic terminal screen. 
-				var nullScreenRow = [' null_row;'].concat(S(nullScreen).lines());
-				g_screenBufRow = (g_screenBuf!='wait...' ? parseNewdata(g_screenBufRow,newdataStr) : parseNewdata(nullScreenRow,newdataStr));
-				g_screenBuf = '';
-				for(var _=0;_<g_screenBufRow.length;_++){
-					g_screenBuf += g_screenBufRow[_] + '\r\n';
-				}
-				executeCallback();
-				sendCommand();
-			}
-			else{
-				var nullScreenRow = [' null_row;'].concat(S(nullScreen).lines());
-				g_screenBufRow = parseNewdata(nullScreenRow,newdataStr);
-				g_screenBuf = '';
-				for(var _=0;_<g_screenBufRow.length;_++){
-					g_screenBuf += g_screenBufRow[_] + '\r\n';
-				}
-				collectArticle(); 
-				moveToNextPage();
-			}
-		}*/
 	});
 	return g_conn;
-}
-function reformScreen(){
 }
 function toArticle(NumStr,callback){
 	var command = NumStr+'\r\r';
@@ -129,7 +91,7 @@ function toArticle(NumStr,callback){
 function fetchArticle(callback){
 	var command = CtrlL;
 	addCommands(command,function(){
-		g_inArticle = true;
+		g_workingState = CollectingArticle;
 	});
 	addCommands(command,callback);
 }
@@ -248,13 +210,21 @@ exports.fetchArticle = fetchArticle;
 /*****
 	private function
 *****/
-function executeCallback(){
+function refreshScreen(newdataStr){
+	var nullScreenRow = [' null_row;'].concat(S(nullScreen).lines());
+	g_screenBufRow = parseNewdata(nullScreenRow,newdataStr);
+	g_screenBuf = '';
+	for(var _=0;_<g_screenBufRow.length;_++){
+		g_screenBuf += g_screenBufRow[_] + '\r\n';
+	}
+}
+function executePriorCallback(){
 	g_commandsObj.callbacks.shift()();
 }
 function sendCommand(){
 	if(g_commandsObj.PttCommands.length != 0){	
 		var PttCommand = g_commandsObj.PttCommands.shift();
-		g_conn.write(PttCommand);	
+		g_conn.write(PttCommand+CtrlL);	
 	}
 	else {
 		g_conn.removeAllListeners('data');
@@ -262,11 +232,11 @@ function sendCommand(){
 	}	
 }
 function moveToNextPage(){
-	if(g_inArticle) {
+	if(g_workingState==CollectingArticle) {
 		g_conn.write(Right+CtrlL);
 	}
 	else{
-		executeCallback();
+		executePriorCallback();
 		g_conn.write(Left);	//goes back to 【文章列表】
 		sendCommand();
 		g_articleBuf= '';
@@ -286,7 +256,7 @@ function collectArticle(){
 		g_articleBuf += articleRow[_] + '\r\n';
 	}
 	if(S(g_screenBuf).between(ArticlePercentStart,ArticlePercentEnd).s == '100'){
-		g_inArticle = false;
+		g_workingState = LoadNextPttbotComand;
 	}
 }
 function addCommands(command,callback){
@@ -430,9 +400,11 @@ function loginDataHandler(newdataStr, id, ps){
 		g_conn.write( '\r' );
 		console.log("[32m(請勿頻繁登入以免造成系統過度負荷)[m");
 	}
-	if (newdataStr.indexOf("主功能表") != -1){
+	if (newdataStr.indexOf("離開，再見…") != -1){
 		console.log( 'Robot commands for main screen should be executed here.↓ ↓ ↓\n[1;32m您現在位於【主功能表】[m' ); 
+		console.log(newdataStr);
 		g_workingState = LoadNextPttbotComand;
+		g_conn.write( CtrlL );
 	}	
 }
 
