@@ -32,14 +32,18 @@ const BoardList = 4; //【看板列表】
 const ArticleList = 5; //【文章列表】
 const Article = 6; //【文章內】
 
+/** Working State **/
+const LoadNextPttbotComand = 0;
+const ExcutingLogin = 1;
+const CollectingArticle = 2;
+
 /** para @ global screen **/
 const nullScreen = '\r\n\r\n\r\n\r\n\r\n\r\n\r\n\r\n\r\n\r\n\r\n\r\n\r\n\r\n\r\n\r\n\r\n\r\n\r\n\r\n\r\n\r\n\r\n';
 var g_conn ;//connecton to ptt-sever
 var g_screenBuf = 'wait...';//mimic screen of terminal
 var g_screenBufRow = [];
 var g_articleBuf = '';
-var g_afterMain = false;
-var g_inArticle = false;
+var g_workingState = ExcutingLogin;
 var g_commandsObj = {
 	PttCommands: [],
 	callbacks: []
@@ -60,7 +64,36 @@ function login(id, ps, callback){
 	});
 	g_conn.addListener('data', function(data){
 		var newdataStr = iconv.decode(data,'big5');
-		processBeforeMain(newdataStr, id, ps);
+		switch(g_workingState){
+			case ExcutingLogin :
+				loginDataHandler(newdataStr, id, ps);
+				break;
+			case LoadNextPttbotComand :
+				//parse new data and mimic terminal screen. 
+				var nullScreenRow = [' null_row;'].concat(S(nullScreen).lines());
+				g_screenBufRow = (g_screenBuf!='wait...' ? parseNewdata(g_screenBufRow,newdataStr) : parseNewdata(nullScreenRow,newdataStr));
+				g_screenBuf = '';
+				for(var _=0;_<g_screenBufRow.length;_++){
+					g_screenBuf += g_screenBufRow[_] + '\r\n';
+				}
+				executeCallback();
+				sendCommand();
+				break;
+			case CollectingArticle :
+				var nullScreenRow = [' null_row;'].concat(S(nullScreen).lines());
+				g_screenBufRow = parseNewdata(nullScreenRow,newdataStr);
+				g_screenBuf = '';
+				for(var _=0;_<g_screenBufRow.length;_++){
+					g_screenBuf += g_screenBufRow[_] + '\r\n';
+				}
+				collectArticle(); 
+				moveToNextPage();
+				break;
+			default :
+				//do nothing
+		}
+		//processBeforeMain(newdataStr, id, ps);
+		/*
 		if(g_afterMain){
 			if(!g_inArticle){
 				//parse new data and mimic terminal screen. 
@@ -71,7 +104,7 @@ function login(id, ps, callback){
 					g_screenBuf += g_screenBufRow[_] + '\r\n';
 				}
 				executeCallback();
-				getCommand();
+				sendCommand();
 			}
 			else{
 				var nullScreenRow = [' null_row;'].concat(S(nullScreen).lines());
@@ -83,7 +116,7 @@ function login(id, ps, callback){
 				collectArticle(); 
 				moveToNextPage();
 			}
-		}
+		}*/
 	});
 	return g_conn;
 }
@@ -218,7 +251,7 @@ exports.fetchArticle = fetchArticle;
 function executeCallback(){
 	g_commandsObj.callbacks.shift()();
 }
-function getCommand(){
+function sendCommand(){
 	if(g_commandsObj.PttCommands.length != 0){	
 		var PttCommand = g_commandsObj.PttCommands.shift();
 		g_conn.write(PttCommand);	
@@ -235,7 +268,7 @@ function moveToNextPage(){
 	else{
 		executeCallback();
 		g_conn.write(Left);	//goes back to 【文章列表】
-		getCommand();
+		sendCommand();
 		g_articleBuf= '';
 	}
 }
@@ -368,7 +401,7 @@ function getAnsiInfo(){
 		return both big5Arr and AnsiArr.
 	**/
 }
-function processBeforeMain(newdataStr, id, ps){
+function loginDataHandler(newdataStr, id, ps){
 	if (newdataStr.indexOf("140.112.172.11") != -1 && newdataStr.indexOf("批踢踢實業坊") != -1) {
 	}
 	if (newdataStr.indexOf("您想刪除其他重複登入的連線嗎") != -1){
@@ -399,7 +432,7 @@ function processBeforeMain(newdataStr, id, ps){
 	}
 	if (newdataStr.indexOf("主功能表") != -1){
 		console.log( 'Robot commands for main screen should be executed here.↓ ↓ ↓\n[1;32m您現在位於【主功能表】[m' ); 
-		g_afterMain = true;
+		g_workingState = LoadNextPttbotComand;
 	}	
 }
 
