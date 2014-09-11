@@ -11,10 +11,12 @@ myBot.login('chengrobot','ps2014',function(){
 		console.log('It\'s saved!');
 	});
 });
-myBot.toBoard( 'movie',function(){
-	console.log(myBot.getScreen());
+/*
+myBot.toBoard('movie',function(){
+	//console.log(myBot.getScreen());
 	fs.writeFile('screen/screen2.txt', iconv.encode(myBot.getScreen(),'big5'), function (err) {
 		if (err) throw err;
 		console.log('It\'s saved!');
 	});
 });
+*/

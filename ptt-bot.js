@@ -65,15 +65,19 @@ function login(id, ps, callback){
 	g_conn.addListener('data', function(data){
 		var newdataStr = iconv.decode(data,'big5');
 		switch( g_workingState ){
-			case ExcutingLogin :
+			case ExcutingLogin:
 				loginDataHandler(newdataStr, id, ps);
 				break;
-			case LoadNextPttbotComand :
+			case LoadNextPttbotComand:
 				refreshScreen(newdataStr);
+				fs.writeFile('screen/newdataStr.txt', iconv.encode(newdataStr,'big5'), function (err) {
+					if (err) throw err;
+					console.log('It\'s saved!');
+				});
 				executePriorCallback();
 				sendCommand();
 				break;
-			case CollectingArticle :
+			case CollectingArticle:
 				refreshScreen(newdataStr);
 				collectArticle(); 
 				moveToNextPage();
@@ -402,7 +406,6 @@ function loginDataHandler(newdataStr, id, ps){
 	}
 	if (newdataStr.indexOf("離開，再見…") != -1){
 		console.log( 'Robot commands for main screen should be executed here.↓ ↓ ↓\n[1;32m您現在位於【主功能表】[m' ); 
-		console.log(newdataStr);
 		g_workingState = LoadNextPttbotComand;
 		g_conn.write( CtrlL );
 	}	
