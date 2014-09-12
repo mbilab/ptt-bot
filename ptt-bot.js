@@ -56,15 +56,19 @@ var g_commandsObj = {
 	public function
 *****/
 function login(id, ps, callback){
+
 	g_conn = net.createConnection(23, 'ptt.cc');
 	g_commandsObj.callbacks.push((callback ? callback : function(){}));	
+	
 	//Listeners
 	g_conn.addListener('connect', function(){
 		console.log('[1;31mconnect to ptt-sever[m');
 	});
+	
 	g_conn.addListener('end',function(){
 		console.log("[1;31mDisconnected...![m");
 	});
+	
 	g_conn.addListener('data', function(data){
 		var newdataStr = iconv.decode(data,'big5');
 		
@@ -93,112 +97,160 @@ function login(id, ps, callback){
 	return g_conn;
 }
 function parseToNewScreen(newdataStr){
+	
 	g_screenBufRow = parseNewdata(g_screenBufRow,newdataStr);
 	g_screenBuf = '';
+	
 	for(var _=0;_<g_screenBufRow.length;_++){
 		g_screenBuf += g_screenBufRow[_] + '\r\n';
 	}
+
 }
 function refreshScreen(newdataStr){
+
 	g_screenBuf = (S(newdataStr).left(7).s=='[H[2J' ? S(newdataStr).chompLeft('[H[2J').s : newdataStr);
+
 }
 function toArticle(NumStr,callback){
+
 	var command = NumStr+'\r\r';
 	addCommands(command,callback);
+
 }
 function fetchArticle(callback){
+	
 	var command = CtrlL;
 	addCommands(command,function(){
 		g_workingState = CollectingArticle;
 		g_screenBufRow = nullScreenRow;//clean old data, since g_screenBufRow is not used until nextPttComand. 
 	});
 	addCommands(command,callback);
+	
 }
 function getScreen(){
+
 	return g_screenBuf;
+
 }
 function getArticle(){
+
 	return g_articleBuf;
+
 }
 function where(){
+
 	/**FIXME**/
 	var screenStr = iconv.decode(iconv.encode(g_screenBuf,'big5'),'big5');
 	if (screenStr.indexOf("主功能表") != -1){
 		return Main;
 	}
+	
 	else if(screenStr.indexOf("文章選讀") != -1 && screenStr.indexOf("進板畫面") != -1){
 		return ArticleList;
 	}
+	
 	else if(screenStr.indexOf("目前顯示") != -1 && screenStr.indexOf("瀏覽 第") != -1){
 		return Article;
 	}
+	
 	else if(screenStr.indexOf("只列最愛") != -1){
 		return HotBoard;
 	}
+	
 	else if(screenStr.indexOf("看板列") != -1 && screenStr.indexOf("增加看板") != -1){
 		return FavBoard;
 	}
+	
 	else if(screenStr.indexOf("加入/移出最愛") != -1){
 		return BoardList;
 	}
+	
 	else if(screenStr.indexOf("即時熱門看板") != -1){
 		return BoardClass;
 	}
+	
 	else{
 		console.log("Error: where can't find where you are.");
 		return false;
 	}
+	
 }
 function escapeANSI(str){
+
 	return	str.replace(AnsiSetDisplayAttr,"");
+
 }
 function pressAnyKey(callback){
+
 	addCommands(Enter,callback);
+
 }
 function toBoard( BoardName,callback ){
+
 	var command = 's' + BoardName + '\r';
 	addCommands(command,callback);
+
 }
 function sendCtrlL(callback){
+
 	addCommands(CtrlL,callback);	
+
 }
 function sendPageUp(callback){
+
 	addCommands(PageUp,callback);	
+
 }
 function sendPageDown(){
+
 	addCommands(pageDown,callback);	
+
 }
 function sendLeft(){
+
 	addCommands(Left,callback);
+	
 }
 function sendRight(callback){
+
 	addCommands(Right,callback);
+
 }
 function MaintoFavBoard(callback){
+
 	/**FIXME**/
 	var command = 'f\r';
 	addCommands(command,callback);
+
 }
 function MaintoHotBoard(){
+
 	/**FIXME**/
 	g_conn.write( 'c' );
 	g_conn.write( '\r' );
 	g_conn.write( 'p' );
 	g_conn.write( '\r' );	
+
 }
 function fetchBoardHeader(){
+
 	var output = S(g_screenBuf).between('[33m', '[0;1;37;44m').s; 		
 	return output;
+
 }
 function fetchArticleList(){
+
 	var output = S(g_screenBuf).between(ArticleListStart.exec(g_screenBuf)[0],ArticleListEnd).s ;	
 	return output;
+
 }
 function fetchArticleList_inArr(){
+
 	var outputArr = S( S(g_screenBuf).between(ArticleListStart.exec(g_screenBuf)[0],ArticleListEnd).s ).lines();
 	outputArr.shift();
 	outputArr.pop();
 	return outputArr;
+
 }
 
 
