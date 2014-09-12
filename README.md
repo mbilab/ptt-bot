@@ -12,7 +12,8 @@ Require
 #### String.js ####
  
  
-	npm install --save string 
+		npm install --save string 
+ 		//do nothing
 	
 
 #### iconv-lite ####
