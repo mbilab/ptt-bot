@@ -11,10 +11,12 @@ Require
 ----------
 #### String.js ####
  
+ 
 	npm install --save string //Installation
 	
 
 #### iconv-lite ####
+ 
  
 	npm install iconv-lite //Installation
 	
