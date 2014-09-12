@@ -283,78 +283,104 @@ exports.fetchArticle = fetchArticle;
 *****/
 
 function executePriorCallback(){
+
 	g_commandsObj.callbacks.shift()();
+
 }
 function sendCommand(){
-	if(g_commandsObj.PttCommands.length != 0){	
+
+	if(g_commandsObj.PttCommands.length != 0){		
 		var PttCommand = g_commandsObj.PttCommands.shift();
 		g_conn.write(PttCommand+CtrlL);	
 	}
+	
 	else {
 		g_conn.removeAllListeners('data');
 		g_conn.end();
 	}	
+	
 }
 function moveToNextPage(){
+
 	if(g_workingState==CollectingArticle) {
 		g_conn.write(Right+CtrlL);
 	}
+	
 	else{
 		executePriorCallback();
 		g_conn.write(Left);	//goes back to 【文章列表】
 		sendCommand();
 		g_articleBuf= '';
 	}
+
 }
 function collectArticle(){
+
 	var row = S(g_screenBuf).between(ArticleIndexStart,ArticleIndexEnd).replaceAll(' ', '"').replaceAll('~', '","').s; 
 	var rowStart = parseInt(S(row).parseCSV()[0]==1 ? 0 : S(row).parseCSV()[0]);
 	var rowEnd = parseInt(S(row).parseCSV()[1]);	
 	var articleRow = S(g_articleBuf).lines();
 	var newArticleRow = S(g_screenBuf).lines().slice(1);
+	
 	for(var _=rowStart;_<=rowEnd;_++){
 		articleRow[_] = newArticleRow[_-rowStart];
 	}
+	
 	g_articleBuf = '';
+	
 	for(var _=0;_<articleRow.length;_++){
 		g_articleBuf += articleRow[_] + '\r\n';
 	}
+	
 	if(S(g_screenBuf).between(ArticlePercentStart,ArticlePercentEnd).s == '100'){
 		g_workingState = LoadNextPttbotComand;
 	}
+	
 }
 function addCommands(command,callback){
+
 	g_commandsObj.PttCommands.push(command);
 	g_commandsObj.callbacks.push((callback ? callback : function(){}));	
+
 }
 function addAnsiAttrSeq(str,col,seq){
 	/*
 		only used in ANSI DisplayAttr sequence;
 	*/
+	
 	var WordMap = generateWordMap(str);
 	var wordLength = getMaxVal(WordMap);
 	var colIndex = WordMap.indexOf(col);	
 	var padLength = str.length+(col-wordLength)-1;
+	
 	if(colIndex==-1) return S(str).padRight(padLength).s+seq;
 	return str.substr(0,colIndex) + seq + str.substr(colIndex);
+
 }
 function addAnsiEOLSeq(str,col,seq){
 	/*
 		only used in ANSI EraseEOL sequence;
 	*/
+	
 	var WordMap = generateWordMap(str);
 	var wordLength = getMaxVal(WordMap);
 	var colIndex = WordMap.indexOf(col);	
 	var padLength = str.length+(col-wordLength)-1;
+	
 	if(colIndex==-1) return S(str).padRight(padLength).s+seq; 
 	return str.substr(0,colIndex) + seq;
+
 }
 function decode_asBig5(data){
+
 	return iconv.decode( data ,'big5');
+
 }
 function generateWordMap(wordSequence){
+
 	var wordIndex = Array(wordSequence.length); 
 	var AnsiSet = /\[(\d+)*;*(\d+)*;*(\d+)*;*(\d+)*[mKH]/g;
+
 	while ((AnsiMatch = AnsiSet.exec(wordSequence)) !== null){	
 		var startIndex = AnsiMatch.index;
 		var lastIndex = AnsiSet.lastIndex-1;
@@ -362,32 +388,42 @@ function generateWordMap(wordSequence){
 			wordIndex[i]=0;
 		}
 	}
+	
 	var wordCount = 1;
+	
 	for(var _=0;_<wordIndex.length;_++){
 		if(wordIndex[_]!=0){
 			wordIndex[_]=wordCount;
 			wordCount++;
 		}
 	}
+	
 	return wordIndex;
+	
 }
 function getMaxVal(arr){
+
 	var max = 0;
+	
 	for(var _=0;_<arr.length;++_){
 		if(max<arr[_]){
 			max=arr[_];
 		}
 	}
+
 	return max;
+	
 }
 function getNearestAnsi(str, wordCursor){
 	/**
 		search nearest front ansi code for #big5 character.
 		note: if no ansi matches then set esc[m
 	**/
+	
 	var WordMap = generateWordMap(str);
 	var backIndex = WordMap.indexOf(wordCursor);
 	var ansi = "" 
+	
 	//if(wordCursor>getMaxVal(WordMap)) console.log('Error: can not find proper char in getNearestAnsi()');
 	for(var _=backIndex;_>=0;_--){
 		if(str[_]==''){
@@ -402,7 +438,9 @@ function getNearestAnsi(str, wordCursor){
 			ansi = '[m';
 		}
 	}
+	
 	return ansi;
+	
 }
 function getAnsiInfo(){
     /**	
@@ -411,34 +449,42 @@ function getAnsiInfo(){
 	**/
 }
 function loginDataHandler(newdataStr, id, ps){
+
 	if (newdataStr.indexOf("140.112.172.11") != -1 && newdataStr.indexOf("批踢踢實業坊") != -1) {
 	}
+	
 	if (newdataStr.indexOf("您想刪除其他重複登入的連線嗎") != -1){
 		g_conn.write( 'y\r' );	
 		console.log( '已刪除其他重複登入的連線' );
 	}
+	
 	if (newdataStr.indexOf("登入中") != -1){
 		console.log("[1;33m登入中...[m");
 	}
+	
 	if (newdataStr.indexOf("請輸入代號，或以 guest 參觀，或以 new 註冊:") != -1){
 		console.log("[1;33m請輸入代號，或以 guest 參觀，或以 new 註冊:[m");
 		g_conn.write( id+'\r' );
 		console.log("[32m(已輸入帳號)[m");
 	}
+	
 	if (newdataStr.indexOf("請輸入您的密碼") != -1){
 		console.log("[1;33m請輸入您的密碼:[m");
 		g_conn.write( ps+'\r' );
 		console.log("[32m(已輸入密碼)[m");
 	}		
+	
 	if (newdataStr.indexOf("歡迎您再度拜訪") != -1){
 		console.log("[1;33m歡迎您再度拜訪![m");
 		g_conn.write( '\r' );
 		console.log("[32m(已按任意鍵繼續)[m");
 	}
+	
 	if (newdataStr.indexOf("按任意鍵繼續") != -1 && newdataStr.indexOf("請勿頻繁登入以免造成系統過度負荷") != -1){
 		g_conn.write( '\r' );
 		console.log("[32m(請勿頻繁登入以免造成系統過度負荷)[m");
 	}
+	
 	if (newdataStr.indexOf("離開，再見…") != -1){
 		console.log( 'Robot commands for main screen should be executed here.↓ ↓ ↓\n[1;32m您現在位於【主功能表】[m' ); 
 		g_workingState = LoadNextPttbotComand;
@@ -446,9 +492,12 @@ function loginDataHandler(newdataStr, id, ps){
 		g_screenBufRow = parseNewdata(nullScreenRow,newdataStr);
 		g_conn.write( Up );
 	}	
+
 }
 function parseNewdata(ScreenRow,newdataStr){
+	
 	//spilt all new data into sequence. 
+	
 	var cursor = {row: 1, col: 1}; //origin cursor
 	var newSequence = [];
 	var preIndex= 0;
@@ -456,6 +505,7 @@ function parseNewdata(ScreenRow,newdataStr){
 	var prematch = {};
 	var strLength_withANSI = 0;
 	newdataStr += '[H_END'; 
+	
 	while ((match = AnsiCursorHome.exec(newdataStr)) !== null){
 		strLength_withANSI = AnsiCursorHome.lastIndex - preIndex - match[0].length;
 		newString = S(newdataStr).left(AnsiCursorHome.lastIndex-match[0].length).right(strLength_withANSI).s;
@@ -468,9 +518,13 @@ function parseNewdata(ScreenRow,newdataStr){
 		preIndex = AnsiCursorHome.lastIndex;
 		prematch = match;
 	}
+	
 	newSequence.shift();
+	
 	//insert all new sequence into prior screen by simulate the terminal.
+	
 	for(var _=0;_<newSequence.length;_++){
+	
 		var newSeq = newSequence[_]['newString'];
 		var len = newSeq.length;
 		var ch = '';
@@ -478,61 +532,80 @@ function parseNewdata(ScreenRow,newdataStr){
 			state : false, //default non-ANSI state.
 			  str : 'no-ansi' //default non-ANSI character.	
 		}
+		
 		//move the cursor to current position
 		cursor.row = newSequence[_].row ;
 		cursor.col = newSequence[_].col ;
+		
 		//start moving the cursor
 		var oldStr = ScreenRow[cursor.row];
+		
 		for(var _2=0;_2<len;_2++){
 			ch = newSeq.slice(0, 1);
 			newSeq = newSeq.slice(1);	
+		
 			if(Ansi.state){//in ANSI state
 				Ansi.str += ch;
+			
 				if(Ansi.str.slice(-1)=='m'){
 					ScreenRow[cursor.row] = addAnsiAttrSeq(ScreenRow[cursor.row],cursor.col,Ansi.str);
 					Ansi.state = false;
 					Ansi.str = 'no-ansi';
 				}
+				
 				if(Ansi.str.slice(-1)=='K'){
 					ScreenRow[cursor.row] = addAnsiEOLSeq(ScreenRow[cursor.row],cursor.col,Ansi.str);
 					Ansi.state = false;
 					Ansi.str = 'no-ansi';
 				}
+				
 			}
+			
 			else{//in non-ANSI state
 				switch(ch){
 					case '':
 						Ansi.str = ch;
 						Ansi.state = true;
 						break;
+				
 					case '\r': //carriage return: return to the col 1
 						cursor.col = 1;
 						break;
+						
 					case '\n': //line feed: move to next row
 						cursor.row += 1;
 						oldStr = ScreenRow[cursor.row];
 						break;
+					
 					/** FIXME: star should be consider as 2 char!?.
 					case '★':
 						ScreenRow[cursor.row] = replaceCharAt(ScreenRow[cursor.row],cursor.col,ch);
 						cursor.col += 2;
 						break;
 					**/
+					
 					default:
 					    /*eraseOldAnsi*/
 						var OldAnsi = detectOldAnsi(oldStr, cursor.col);
+						
 						if(OldAnsi.exist) ScreenRow[cursor.row] = eraseOldAnsi(OldAnsi, ScreenRow[cursor.row], cursor.col);
 						/*eraseOldAnsi*/
 						ScreenRow[cursor.row] = replaceCharAt(ScreenRow[cursor.row],cursor.col,ch);
 						cursor.col += 1;
+				
 				}
 			}
+			
 			if(_2==len-1){//if last character, copy old ansi for next word
 				if(generateWordMap(oldStr).indexOf(cursor.col)!=-1) ScreenRow[cursor.row] = addAnsiAttrSeq(ScreenRow[cursor.row], cursor.col, getNearestAnsi(oldStr, cursor.col));
 			}
+			
 		}
+		
 	}
+
 	return ScreenRow;
+
 }
 function replaceCharAt(str,col,chr) {
 	/*
@@ -540,17 +613,22 @@ function replaceCharAt(str,col,chr) {
 		col start from 1, index start from 0 instead;
 		index has to escape all the ansi sequence.
 	*/
+	
 	var WordMap = generateWordMap(str);
 	var wordLength = getMaxVal(WordMap);
 	var colIndex = WordMap.indexOf(col);	
 	var padLength = str.length+(col-wordLength)-1;
+	
 	if(colIndex==-1) return S(str).padRight(padLength).s+chr;
-    return str.substr(0,colIndex) + chr + str.substr(colIndex+1);
+    
+	return str.substr(0,colIndex) + chr + str.substr(colIndex+1);
+
 }
 function detectOldAnsi(str, wordCursor){
 	/**
 		detect OldANSI.
 	**/	
+
 	var Ansi = {
 		exist : false,
 		length : 0
@@ -558,17 +636,23 @@ function detectOldAnsi(str, wordCursor){
 	var wordMap = generateWordMap(str);
 	var WordIndex = wordMap.indexOf(wordCursor);
 	var preWordIndex = (wordCursor==1 ? -1 : wordMap.indexOf(wordCursor-1));
+
 	if(WordIndex-preWordIndex!=1 && WordIndex!=-1){
 		Ansi.exist = true;
 		Ansi.length = WordIndex-preWordIndex-1;
 	}
+
 	return Ansi;
+
 }
 function eraseOldAnsi(OldAnsi, str, wordCursor){
 	/**
 		OldAnsi include AnsiDisplayAttr and AnsiCursorHome.
 	**/
+
 	var wordMap = generateWordMap(str);
 	var preWordIndex = (wordCursor==1 ? 0 : wordMap.indexOf(wordCursor-1));
+
 	return str.substr(0,preWordIndex+1)+str.substr(preWordIndex+OldAnsi.length+1);
+
 }
