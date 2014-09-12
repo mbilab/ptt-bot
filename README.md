@@ -9,16 +9,14 @@ Ptt-bot is an open source node.js project for crawling data from **PTT**[4].
 
 Require
 ----------
-#### **String.js **####
-*Installation*
+#### String.js ####
  
-	npm install --save string
+	npm install --save string //Installation
 	
 
-#### **iconv-lite **####
-*Installation*
+#### iconv-lite ####
  
-	npm install iconv-lite
+	npm install iconv-lite //Installation
 	
 
 
