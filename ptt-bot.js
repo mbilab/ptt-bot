@@ -19,6 +19,8 @@ const ArticlePercentEnd = "%) [1;30;47m";
 const Enter = '\r';
 const Left = '\u001b[D';
 const Right = '\u001b[C';
+const Up = '\u001b[A';
+const Down = '\u001b[B';
 const PageUp = 'P';
 const PageDown = 'N';
 const CtrlL = '\u000c';
@@ -39,6 +41,7 @@ const CollectingArticle = 2;
 
 /** para @ global screen **/
 const nullScreen = '\r\n\r\n\r\n\r\n\r\n\r\n\r\n\r\n\r\n\r\n\r\n\r\n\r\n\r\n\r\n\r\n\r\n\r\n\r\n\r\n\r\n\r\n\r\n';
+const nullScreenRow = [' null_row;'].concat(S(nullScreen).lines());
 var g_conn ;//connecton to ptt-sever
 var g_screenBuf = 'wait...';//mimic screen of terminal
 var g_screenBufRow = [];
@@ -64,29 +67,37 @@ function login(id, ps, callback){
 	});
 	g_conn.addListener('data', function(data){
 		var newdataStr = iconv.decode(data,'big5');
-		switch( g_workingState ){
+		
+		switch( g_workingState ){		
 			case ExcutingLogin:
 				loginDataHandler(newdataStr, id, ps);
 				break;
-			case LoadNextPttbotComand:
-				refreshScreen(newdataStr);
-				fs.writeFile('screen/newdataStr.txt', iconv.encode(newdataStr,'big5'), function (err) {
-					if (err) throw err;
-					console.log('It\'s saved!');
-				});
+				
+			case LoadNextPttbotComand:	
+				parseToNewScreen(newdataStr); //a bulks of bugs need to be fixed.
 				executePriorCallback();
 				sendCommand();
 				break;
+				
 			case CollectingArticle:
-				refreshScreen(newdataStr);
+				refreshScreen(newdataStr); //refreshScreen() is not suitable in all case. 
 				collectArticle(); 
 				moveToNextPage();
 				break;
+				
 			default :
 				console.log('working state is undifined.');
+		
 		}
 	});
 	return g_conn;
+}
+function parseToNewScreen(newdataStr){
+	g_screenBufRow = parseNewdata(g_screenBufRow,newdataStr);
+	g_screenBuf = '';
+	for(var _=0;_<g_screenBufRow.length;_++){
+		g_screenBuf += g_screenBufRow[_] + '\r\n';
+	}
 }
 function refreshScreen(newdataStr){
 	g_screenBuf = (S(newdataStr).left(7).s=='[H[2J' ? S(newdataStr).chompLeft('[H[2J').s : newdataStr);
@@ -99,6 +110,7 @@ function fetchArticle(callback){
 	var command = CtrlL;
 	addCommands(command,function(){
 		g_workingState = CollectingArticle;
+		g_screenBufRow = nullScreenRow;//clean old data, since g_screenBufRow is not used until nextPttComand. 
 	});
 	addCommands(command,callback);
 }
@@ -378,6 +390,133 @@ function loginDataHandler(newdataStr, id, ps){
 	if (newdataStr.indexOf("離開，再見…") != -1){
 		console.log( 'Robot commands for main screen should be executed here.↓ ↓ ↓\n[1;32m您現在位於【主功能表】[m' ); 
 		g_workingState = LoadNextPttbotComand;
-		g_conn.write( CtrlL );
+		//console.log(newdataStr);
+		g_screenBufRow = parseNewdata(nullScreenRow,newdataStr);
+		g_conn.write( Up );
 	}	
+}
+function parseNewdata(ScreenRow,newdataStr){
+	//spilt all new data into sequence. 
+	var cursor = {row: 1, col: 1}; //origin cursor
+	var newSequence = [];
+	var preIndex= 0;
+	var newString = '';
+	var prematch = {};
+	var strLength_withANSI = 0;
+	newdataStr += '[H_END'; 
+	while ((match = AnsiCursorHome.exec(newdataStr)) !== null){
+		strLength_withANSI = AnsiCursorHome.lastIndex - preIndex - match[0].length;
+		newString = S(newdataStr).left(AnsiCursorHome.lastIndex-match[0].length).right(strLength_withANSI).s;
+		newSequence.push({
+			'cursorControl' : prematch[0],
+			'row' : (prematch[1] ? parseInt(prematch[1]) : 1),
+			'col' : (prematch[2] ? parseInt(prematch[2]) : 1),
+			'newString' : newString	
+ 		});
+		preIndex = AnsiCursorHome.lastIndex;
+		prematch = match;
+	}
+	newSequence.shift();
+	//insert all new sequence into prior screen by simulate the terminal.
+	for(var _=0;_<newSequence.length;_++){
+		var newSeq = newSequence[_]['newString'];
+		var len = newSeq.length;
+		var ch = '';
+		var Ansi ={
+			state : false, //default non-ANSI state.
+			  str : 'no-ansi' //default non-ANSI character.	
+		}
+		//move the cursor to current position
+		cursor.row = newSequence[_].row ;
+		cursor.col = newSequence[_].col ;
+		//start moving the cursor
+		var oldStr = ScreenRow[cursor.row];
+		for(var _2=0;_2<len;_2++){
+			ch = newSeq.slice(0, 1);
+			newSeq = newSeq.slice(1);	
+			if(Ansi.state){//in ANSI state
+				Ansi.str += ch;
+				if(Ansi.str.slice(-1)=='m'){
+					ScreenRow[cursor.row] = addAnsiAttrSeq(ScreenRow[cursor.row],cursor.col,Ansi.str);
+					Ansi.state = false;
+					Ansi.str = 'no-ansi';
+				}
+				if(Ansi.str.slice(-1)=='K'){
+					ScreenRow[cursor.row] = addAnsiEOLSeq(ScreenRow[cursor.row],cursor.col,Ansi.str);
+					Ansi.state = false;
+					Ansi.str = 'no-ansi';
+				}
+			}
+			else{//in non-ANSI state
+				switch(ch){
+					case '':
+						Ansi.str = ch;
+						Ansi.state = true;
+						break;
+					case '\r': //carriage return: return to the col 1
+						cursor.col = 1;
+						break;
+					case '\n': //line feed: move to next row
+						cursor.row += 1;
+						oldStr = ScreenRow[cursor.row];
+						break;
+					/** FIXME: star should be consider as 2 char!?.
+					case '★':
+						ScreenRow[cursor.row] = replaceCharAt(ScreenRow[cursor.row],cursor.col,ch);
+						cursor.col += 2;
+						break;
+					**/
+					default:
+					    /*eraseOldAnsi*/
+						var OldAnsi = detectOldAnsi(oldStr, cursor.col);
+						if(OldAnsi.exist) ScreenRow[cursor.row] = eraseOldAnsi(OldAnsi, ScreenRow[cursor.row], cursor.col);
+						/*eraseOldAnsi*/
+						ScreenRow[cursor.row] = replaceCharAt(ScreenRow[cursor.row],cursor.col,ch);
+						cursor.col += 1;
+				}
+			}
+			if(_2==len-1){//if last character, copy old ansi for next word
+				if(generateWordMap(oldStr).indexOf(cursor.col)!=-1) ScreenRow[cursor.row] = addAnsiAttrSeq(ScreenRow[cursor.row], cursor.col, getNearestAnsi(oldStr, cursor.col));
+			}
+		}
+	}
+	return ScreenRow;
+}
+function replaceCharAt(str,col,chr) {
+	/*
+		only used in non-ansi char;
+		col start from 1, index start from 0 instead;
+		index has to escape all the ansi sequence.
+	*/
+	var WordMap = generateWordMap(str);
+	var wordLength = getMaxVal(WordMap);
+	var colIndex = WordMap.indexOf(col);	
+	var padLength = str.length+(col-wordLength)-1;
+	if(colIndex==-1) return S(str).padRight(padLength).s+chr;
+    return str.substr(0,colIndex) + chr + str.substr(colIndex+1);
+}
+function detectOldAnsi(str, wordCursor){
+	/**
+		detect OldANSI.
+	**/	
+	var Ansi = {
+		exist : false,
+		length : 0
+	}
+	var wordMap = generateWordMap(str);
+	var WordIndex = wordMap.indexOf(wordCursor);
+	var preWordIndex = (wordCursor==1 ? -1 : wordMap.indexOf(wordCursor-1));
+	if(WordIndex-preWordIndex!=1 && WordIndex!=-1){
+		Ansi.exist = true;
+		Ansi.length = WordIndex-preWordIndex-1;
+	}
+	return Ansi;
+}
+function eraseOldAnsi(OldAnsi, str, wordCursor){
+	/**
+		OldAnsi include AnsiDisplayAttr and AnsiCursorHome.
+	**/
+	var wordMap = generateWordMap(str);
+	var preWordIndex = (wordCursor==1 ? 0 : wordMap.indexOf(wordCursor-1));
+	return str.substr(0,preWordIndex+1)+str.substr(preWordIndex+OldAnsi.length+1);
 }
