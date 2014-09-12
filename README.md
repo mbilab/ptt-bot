@@ -7,7 +7,7 @@ PTT-BOT
 Ptt-bot is an open source node.js project for crawling data from **PTT**[4].
 
 
-Install node-modulus
+Require
 ----------
 #### String.js ####
  
