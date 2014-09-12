@@ -13,13 +13,12 @@ Require
  
  
 		npm install --save string 
- 		//do nothing
 	
 
 #### iconv-lite ####
  
  
-	npm install iconv-lite 
+		npm install iconv-lite 
 	
 
 
