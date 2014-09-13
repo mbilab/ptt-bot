@@ -328,7 +328,7 @@ function collectArticle(){
 	
 	g_articleBuf = '';
 	
-	for(var _=0;_<articleRow.length;_++){
+	for(var _ = -1, n = articleRow.length; ++_ < n ;){
 		g_articleBuf += articleRow[_] + '\r\n';
 	}
 	
@@ -405,7 +405,7 @@ function getMaxVal(arr){
 
 	var max = 0;
 	
-	for(var _=0;_<arr.length;++_){
+	for(var _ = -1 , n = arr.length ; ++_ < n;){
 		if(max<arr[_]){
 			max=arr[_];
 		}
@@ -523,7 +523,7 @@ function parseNewdata(ScreenRow,newdataStr){
 	
 	//insert all new sequence into prior screen by simulate the terminal.
 	
-	for(var _=0;_<newSequence.length;_++){
+	for(var _ = -1 , n = newSequence.length ; ++_ < n ;){
 	
 		var newSeq = newSequence[_]['newString'];
 		var len = newSeq.length;
@@ -540,7 +540,7 @@ function parseNewdata(ScreenRow,newdataStr){
 		//start moving the cursor
 		var oldStr = ScreenRow[cursor.row];
 		
-		for(var _2=0;_2<len;_2++){
+		for(var _2 = -1, n2 = len ; ++_2 < n2 ;){
 			ch = newSeq.slice(0, 1);
 			newSeq = newSeq.slice(1);	
 		
