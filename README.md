@@ -9,7 +9,7 @@ Ptt-bot is an open source node.js project for crawling data from **PTT**[4].
 
 Require
 ----------
-#### String.js ####
+#### string.js ####
  
  
 		npm install --save string 
@@ -33,11 +33,11 @@ Require
 [package4]: http://stringjs.com/
 
 
-base-method
+Base-method
 ----------
 
 
-applied-method
+Applied-method
 ----------
  * filter( factor1, factor2, factor3 )
 
