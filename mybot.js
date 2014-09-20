@@ -1,4 +1,4 @@
-var myBot = require('./ptt-bot');
+var myBot = require('./PTT-BOT/ptt-bot');
 var fs = require('fs');
 var iconv = require('iconv-lite'); 
 
@@ -6,7 +6,7 @@ var iconv = require('iconv-lite');
 myBot.login('chengrobot','ps2014',function(){
 	console.log('hi, chenchen chang, how are you?');
 	console.log(myBot.getScreen());
-	fs.writeFile('screen/cursormove.txt', iconv.encode(myBot.getScreen(),'big5'), function (err) {
+	fs.writeFile('screen_data/cursormove.txt', iconv.encode(myBot.getScreen(),'big5'), function (err) {
 		if (err) throw err;
 		console.log('cursormove is saved!');
 	});
@@ -14,7 +14,7 @@ myBot.login('chengrobot','ps2014',function(){
 
 myBot.toBoard('movie',function(){
 	//console.log(myBot.getScreen());
-	fs.writeFile('screen/screen2.txt', iconv.encode(myBot.getScreen(),'big5'), function (err) {
+	fs.writeFile('screen_data/screen2.txt', iconv.encode(myBot.getScreen(),'big5'), function (err) {
 		if (err) throw err;
 		console.log('It\'s saved!');
 	});
