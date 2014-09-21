@@ -36,9 +36,11 @@ const ArticleList = 5; //【文章列表】
 const Article = 6; //【文章內】
 
 /** Working State **/
-const LoadNextPttbotComand = 0;
-const ExcutingLogin = 1;
-const CollectingArticle = 2;
+/*
+const 'LoadNextPttbotComand' = 0;
+const 'ExcutingLogin' = 1;
+const 'CollectingArticle' = 2;
+*/
 
 /** para @ global screen **/
 const nullScreen = '\r\n\r\n\r\n\r\n\r\n\r\n\r\n\r\n\r\n\r\n\r\n\r\n\r\n\r\n\r\n\r\n\r\n\r\n\r\n\r\n\r\n\r\n\r\n';
@@ -47,7 +49,7 @@ var g_conn ;//connecton to ptt-sever
 var g_screenBuf = 'wait...';//mimic screen of terminal
 var g_screenBufRow = [];
 var g_articleBuf = '';
-var g_workingState = ExcutingLogin;
+var g_workingState = 'ExcutingLogin';
 var g_commandsObj = {
 	PttCommands: [],
 	callbacks: []
@@ -59,11 +61,22 @@ var g_commandsObj = {
 function login(id, ps, callback){
 
 	g_conn = net.createConnection(23, 'ptt.cc');
+	/**setTimeOut**/
+	g_conn.setTimeout(100,function(){
+		console.log('time is out');
+	});
+	/**setTimeOut**/
 	g_commandsObj.callbacks.push((callback ? callback : function(){}));	
 	
 	//Listeners
+	/**setTimeOut**/
+	g_conn.addListener('timeout', function(){
+		console.log('time is out');
+	});
+	/**setTimeOut**/
+	
 	g_conn.addListener('connect', function(){
-		console.log('[1;31mconnect to ptt-sever[m');
+		console.log('[1;31mconnected to ptt-sever[m');
 	});
 	
 	g_conn.addListener('end',function(){
@@ -71,20 +84,23 @@ function login(id, ps, callback){
 	});
 	
 	g_conn.addListener('data', function(data){
+		//console.log( g_workingState );
 		var newdataStr = iconv.decode(data,'big5');
 		
 		switch( g_workingState ){		
-			case ExcutingLogin:
+			case 'ExcutingLogin':
 				loginDataHandler(newdataStr, id, ps);
 				break;
 				
-			case LoadNextPttbotComand:	
+			case 'LoadNextPttbotComand':	
 				parseToNewScreen(newdataStr); //a bulks of bugs need to be fixed.
 				executePriorCallback();
 				sendCommand();
 				break;
 				
-			case CollectingArticle:
+			//case 'EnteringBoard':	
+			
+			case 'CollectingArticle':
 				refreshScreen(newdataStr); //refreshScreen() is not suitable in all case. 
 				collectArticle(); 
 				moveToNextPage();
@@ -97,6 +113,7 @@ function login(id, ps, callback){
 	});
 	return g_conn;
 }
+
 function parseToNewScreen(newdataStr){
 	
 	g_screenBufRow = screen.parseNewdata(g_screenBufRow,newdataStr);
@@ -107,37 +124,43 @@ function parseToNewScreen(newdataStr){
 	}
 
 }
+
 function refreshScreen(newdataStr){
 
 	g_screenBuf = (S(newdataStr).left(7).s=='[H[2J' ? S(newdataStr).chompLeft('[H[2J').s : newdataStr);
 
 }
+
 function toArticle(NumStr,callback){
 
 	var command = NumStr+'\r\r';
 	addCommands(command,callback);
 
 }
+
 function fetchArticle(callback){
 	
 	var command = CtrlL;
 	addCommands(command,function(){
-		g_workingState = CollectingArticle;
+		g_workingState = 'CollectingArticle';
 		g_screenBufRow = nullScreenRow;//clean old data, since g_screenBufRow is not used until nextPttComand. 
 	});
 	addCommands(command,callback);
 	
 }
+
 function getScreen(){
 
 	return g_screenBuf;
 
 }
+
 function getArticle(){
 
 	return g_articleBuf;
 
 }
+
 function where(){
 
 	/**FIXME**/
@@ -176,47 +199,56 @@ function where(){
 	}
 	
 }
+
 function escapeANSI(str){
 
 	return	str.replace(AnsiSetDisplayAttr,"");
 
 }
+
 function pressAnyKey(callback){
 
 	addCommands(Enter,callback);
 
 }
+
 function toBoard( BoardName,callback ){
 
 	var command = 's' + BoardName + '\r';
 	addCommands(command,callback);
 
 }
+
 function sendCtrlL(callback){
 
 	addCommands(CtrlL,callback);	
 
 }
+
 function sendPageUp(callback){
 
 	addCommands(PageUp,callback);	
 
 }
+
 function sendPageDown(){
 
 	addCommands(pageDown,callback);	
 
 }
+
 function sendLeft(){
 
 	addCommands(Left,callback);
 	
 }
+
 function sendRight(callback){
 
 	addCommands(Right,callback);
 
 }
+
 function MaintoFavBoard(callback){
 
 	/**FIXME**/
@@ -224,6 +256,7 @@ function MaintoFavBoard(callback){
 	addCommands(command,callback);
 
 }
+
 function MaintoHotBoard(){
 
 	/**FIXME**/
@@ -233,18 +266,21 @@ function MaintoHotBoard(){
 	g_conn.write( '\r' );	
 
 }
+
 function fetchBoardHeader(){
 
 	var output = S(g_screenBuf).between('[33m', '[0;1;37;44m').s; 		
 	return output;
 
 }
+
 function fetchArticleList(){
 
 	var output = S(g_screenBuf).between(ArticleListStart.exec(g_screenBuf)[0],ArticleListEnd).s ;	
 	return output;
 
 }
+
 function fetchArticleList_inArr(){
 
 	var outputArr = S( S(g_screenBuf).between(ArticleListStart.exec(g_screenBuf)[0],ArticleListEnd).s ).lines();
@@ -253,6 +289,7 @@ function fetchArticleList_inArr(){
 	return outputArr;
 
 }
+
 
 
 /*
@@ -288,6 +325,7 @@ function executePriorCallback(){
 	g_commandsObj.callbacks.shift()();
 
 }
+
 function sendCommand(){
 
 	if(g_commandsObj.PttCommands.length != 0){		
@@ -301,9 +339,10 @@ function sendCommand(){
 	}	
 	
 }
+
 function moveToNextPage(){
 
-	if(g_workingState==CollectingArticle) {
+	if(g_workingState=='CollectingArticle') {
 		g_conn.write(Right+CtrlL);
 	}
 	
@@ -315,6 +354,7 @@ function moveToNextPage(){
 	}
 
 }
+
 function collectArticle(){
 
 	var row = S(g_screenBuf).between(ArticleIndexStart,ArticleIndexEnd).replaceAll(' ', '"').replaceAll('~', '","').s; 
@@ -334,27 +374,31 @@ function collectArticle(){
 	}
 	
 	if(S(g_screenBuf).between(ArticlePercentStart,ArticlePercentEnd).s == '100'){
-		g_workingState = LoadNextPttbotComand;
+		g_workingState = 'LoadNextPttbotComand';
 	}
 	
 }
+
 function addCommands(command,callback){
 
 	g_commandsObj.PttCommands.push(command);
 	g_commandsObj.callbacks.push((callback ? callback : function(){}));	
 
 }
+
 function decode_asBig5(data){
 
 	return iconv.decode( data ,'big5');
 
 }
+
 function getAnsiInfo(){
     /**	
 		when user need ansi information. generate it.
 		return both big5Arr and AnsiArr.
 	**/
 }
+
 function loginDataHandler(newdataStr, id, ps){
 
 	if (newdataStr.indexOf("140.112.172.11") != -1 && newdataStr.indexOf("批踢踢實業坊") != -1) {
@@ -394,7 +438,7 @@ function loginDataHandler(newdataStr, id, ps){
 	
 	if (newdataStr.indexOf("離開，再見…") != -1){
 		console.log( 'Robot commands for main screen should be executed here.↓ ↓ ↓\n[1;32m您現在位於【主功能表】[m' ); 
-		g_workingState = LoadNextPttbotComand;
+		g_workingState = 'LoadNextPttbotComand';
 		//console.log(newdataStr);
 		g_screenBufRow = screen.parseNewdata(nullScreenRow,newdataStr);
 		g_conn.write( Up );
