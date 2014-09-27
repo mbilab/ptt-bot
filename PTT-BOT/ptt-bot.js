@@ -49,6 +49,7 @@ var g_conn ;//connecton to ptt-sever
 var g_screenBuf = 'wait...';//mimic screen of terminal
 var g_screenBufRow = [];
 var g_articleBuf = '';
+var g_new_data = '';
 var g_workingState = 'ExcutingLogin';
 var g_commandsObj = {
 	PttCommands: [],
@@ -61,31 +62,34 @@ var g_commandsObj = {
 function login(id, ps, callback){
 
 	g_conn = net.createConnection(23, 'ptt.cc');
-	/**setTimeOut**/
-	g_conn.setTimeout(100,function(){
-		console.log('time is out');
-	});
-	/**setTimeOut**/
+	
+	g_conn.setTimeout(1000);
+	
 	g_commandsObj.callbacks.push((callback ? callback : function(){}));	
 	
 	//Listeners
-	/**setTimeOut**/
-	g_conn.addListener('timeout', function(){
-		console.log('time is out');
-	});
-	/**setTimeOut**/
-	
 	g_conn.addListener('connect', function(){
+	
 		console.log('[1;31mconnected to ptt-sever[m');
+
 	});
 	
 	g_conn.addListener('end',function(){
+	
 		console.log("[1;31mDisconnected...![m");
+	
 	});
 	
 	g_conn.addListener('data', function(data){
-		//console.log( g_workingState );
-		var newdataStr = iconv.decode(data,'big5');
+
+		g_new_data = iconv.decode(data,'big5');
+
+	});
+	
+	g_conn.addListener('timeout', function(){
+		console.log('time is out');
+		
+		var newdataStr = g_new_data;
 		
 		switch( g_workingState ){		
 			case 'ExcutingLogin':
@@ -111,6 +115,7 @@ function login(id, ps, callback){
 		
 		}
 	});
+	
 	return g_conn;
 }
 
@@ -334,7 +339,7 @@ function sendCommand(){
 	}
 	
 	else {
-		g_conn.removeAllListeners('data');
+		g_conn.removeAllListeners('timeout');
 		g_conn.end();
 	}	
 	
