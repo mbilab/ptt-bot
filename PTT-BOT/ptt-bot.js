@@ -342,7 +342,7 @@ function sendCommand(){
 
 	if(g_commandsObj.PttCommands.length != 0){		
 		var PttCommand = g_commandsObj.PttCommands.shift();
-		g_conn.write(PttCommand+CtrlL);	
+		g_conn.write(PttCommand+CtrlL);	//FixMe
 	}
 	
 	else {
@@ -456,7 +456,7 @@ function loginDataHandler(newdataStr, id, ps){
 	
 		g_screenBufRow = screen.parseNewdata(nullScreenRow,newdataStr);
 
-		g_conn.write( Up );
+		g_conn.write( CtrlL );
 
 	}	
 
