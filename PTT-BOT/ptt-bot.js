@@ -95,13 +95,14 @@ function login(id, ps, callback){
 			console.log('It\'s saved!');
 		});
 		
+		
 		switch( g_workingState ){		
 			case 'ExcutingLogin':
 				loginDataHandler(newdataStr, id, ps);
 				break;
 				
 			case 'LoadNextPttbotComand':	
-				parseToNewScreen(newdataStr); //a bulks of bugs need to be fixed.
+				parseToNewScreen(newdataStr);//a bulks of bugs need to be fixed.
 				executePriorCallback();
 				sendCommand();
 				break;
