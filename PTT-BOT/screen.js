@@ -1,3 +1,11 @@
+/******************************************
+
+This file is consist of methods handing 
+screen issue; that is, reconstruct the 
+screen, parse the ANSI-sequence...etc. 
+
+******************************************/
+
 /** node modulus **/
 var S = require('string');
 

@@ -49,6 +49,7 @@ var g_conn ;//connecton to ptt-sever
 var g_screenBuf = 'wait...';//mimic screen of terminal
 var g_screenBufRow = [];
 var g_articleBuf = '';
+var g_new_data = '';
 var g_workingState = 'ExcutingLogin';
 var g_commandsObj = {
 	PttCommands: [],
@@ -61,31 +62,38 @@ var g_commandsObj = {
 function login(id, ps, callback){
 
 	g_conn = net.createConnection(23, 'ptt.cc');
-	/**setTimeOut**/
-	g_conn.setTimeout(100,function(){
-		console.log('time is out');
-	});
-	/**setTimeOut**/
+	
+	g_conn.setTimeout(700);
+	
 	g_commandsObj.callbacks.push((callback ? callback : function(){}));	
 	
 	//Listeners
-	/**setTimeOut**/
-	g_conn.addListener('timeout', function(){
-		console.log('time is out');
-	});
-	/**setTimeOut**/
-	
 	g_conn.addListener('connect', function(){
+	
 		console.log('[1;31mconnected to ptt-sever[m');
+
 	});
 	
 	g_conn.addListener('end',function(){
+	
 		console.log("[1;31mDisconnected...![m");
+	
 	});
 	
 	g_conn.addListener('data', function(data){
-		//console.log( g_workingState );
-		var newdataStr = iconv.decode(data,'big5');
+
+		g_new_data += iconv.decode(data,'big5');
+
+	});
+	
+	g_conn.addListener('timeout', function(){
+		
+		var newdataStr = g_new_data;
+		
+		fs.writeFile('screen_data/screen.txt', iconv.encode(newdataStr,'big5'), function (err) {
+			if (err) throw err;
+			console.log('It\'s saved!');
+		});
 		
 		switch( g_workingState ){		
 			case 'ExcutingLogin':
@@ -110,7 +118,11 @@ function login(id, ps, callback){
 				console.log('working state is undifined.');
 		
 		}
+		
+		g_new_data = '' ;		
+		
 	});
+	
 	return g_conn;
 }
 
@@ -334,7 +346,7 @@ function sendCommand(){
 	}
 	
 	else {
-		g_conn.removeAllListeners('data');
+		g_conn.removeAllListeners('timeout');
 		g_conn.end();
 	}	
 	
@@ -437,11 +449,15 @@ function loginDataHandler(newdataStr, id, ps){
 	}
 	
 	if (newdataStr.indexOf("離開，再見…") != -1){
+	
 		console.log( 'Robot commands for main screen should be executed here.↓ ↓ ↓\n[1;32m您現在位於【主功能表】[m' ); 
 		g_workingState = 'LoadNextPttbotComand';
 		//console.log(newdataStr);
+	
 		g_screenBufRow = screen.parseNewdata(nullScreenRow,newdataStr);
+
 		g_conn.write( Up );
+
 	}	
 
 }

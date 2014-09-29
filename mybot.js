@@ -5,7 +5,7 @@ var iconv = require('iconv-lite');
 //create the connection object for robot.
 myBot.login('chengrobot','ps2014',function(){
 	console.log('hi, chenchen chang, how are you?');
-	//console.log(myBot.getScreen());
+	console.log(myBot.getScreen());
 	/*
 	fs.writeFile('screen_data/cursormove.txt', iconv.encode(myBot.getScreen(),'big5'), function (err) {
 		if (err) throw err;
@@ -16,6 +16,7 @@ myBot.login('chengrobot','ps2014',function(){
 
 myBot.toBoard('gossiping',function(){
 	console.log('myBot.toBoard()');
+	console.log(myBot.getScreen());
 	/*
 	fs.writeFile('screen_data/screen2.txt', iconv.encode(myBot.getScreen(),'big5'), function (err) {
 		if (err) throw err;
@@ -26,6 +27,7 @@ myBot.toBoard('gossiping',function(){
 
 myBot.pressAnyKey(function(){
 	console.log('myBot.pressAnyKey()');
+	console.log(myBot.getScreen());
 	/*
 	fs.writeFile('screen_data/screen3.txt', iconv.encode(myBot.getScreen(),'big5'), function (err) {
 		if (err) throw err;
@@ -36,6 +38,7 @@ myBot.pressAnyKey(function(){
 
 myBot.pressAnyKey(function(){
 	console.log('myBot.pressAnyKey()');
+	console.log(myBot.getScreen());
 	/*
 	fs.writeFile('screen_data/screen3.txt', iconv.encode(myBot.getScreen(),'big5'), function (err) {
 		if (err) throw err;
@@ -44,8 +47,9 @@ myBot.pressAnyKey(function(){
 	*/
 });
 
-myBot.pressAnyKey(function(){
+myBot.sendCtrlL(function(){
 	console.log('myBot.pressAnyKey()');
+	console.log(myBot.getScreen());
 	/*
 	fs.writeFile('screen_data/screen3.txt', iconv.encode(myBot.getScreen(),'big5'), function (err) {
 		if (err) throw err;
