@@ -56,8 +56,8 @@ var g_commandsObj = {
 	callbacks: []
 }
 var g_cursor = {
-	row: 0,
-	col: 0
+	row: 1,
+	col: 1
 }
 
 /*****

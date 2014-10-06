@@ -8,14 +8,37 @@ screen, parse the ANSI-sequence...etc.
 
 /** node modulus **/
 var S = require('string');
+var fs = require('fs');//test
+var iconv = require('iconv-lite');//test
 
 /** Regular Expression && Pattern **/
-const AnsiCursorHome = /\[(\d+)*;*(\d+)*H/g
+const AnsiCursorHome = /\[(\d+)*;*(\d+)*H/g;
+const nullScreen = '\r\n\r\n\r\n\r\n\r\n\r\n\r\n\r\n\r\n\r\n\r\n\r\n\r\n\r\n\r\n\r\n\r\n\r\n\r\n\r\n\r\n\r\n\r\n';
+const nullScreenRow = [' null_row;'].concat(S(nullScreen).lines());
 
+/* test function */
+(function(){
+	fs.readFile('../screen_data/main.txt', function (err, data) {
+		if (err) throw err;
+		//console.log(iconv.decode(iconv.encode(data,'big5'),'big5'));
+		const orginScreen = '1234\r\n23\r\n\r\n\r\n\r\n\r\n\r\n\r\n\r\n\r\n\r\n\r\n\r\n\r\n\r\n\r\n\r\n\r\n\r\n\r\n\r\n\r\n\r\n';
+		const orginScreenRow = [' null_row;'].concat(S(orginScreen).lines());
+		var a =	_parseNewdata(  {
+								row: 0,
+								col: 0
+								},
+								orginScreenRow,
+								iconv.decode(iconv.encode(data,'big5'),'big5')
+							);
+		fs.writeFile('../screen_data/result.txt', iconv.encode(a,'big5'), function (err) {
+			if (err) throw err;
+			console.log('It\'s saved!');
+		});
+	});
+})();
 
 
 function _parseNewdata(g_cursor,ScreenRow,newdataStr){
-	
 	
 	//insert all new sequence into prior screen by simulate the terminal.
 	
@@ -37,7 +60,7 @@ function _parseNewdata(g_cursor,ScreenRow,newdataStr){
 				switch( Ansi.str.slice(-1) ){
 				
 					case 'm':
-						ScreenRow[cursor.row] = addAnsiAttrSeq(ScreenRow[cursor.row],cursor.col,Ansi.str);
+						ScreenRow[g_cursor.row] = addAnsiAttrSeq(ScreenRow[g_cursor.row],g_cursor.col,Ansi.str);
 						Ansi.state = false;
 						Ansi.str = 'no-ansi';
 						break;
@@ -52,6 +75,17 @@ function _parseNewdata(g_cursor,ScreenRow,newdataStr){
 						/**
 							MOVE THE CURSOR TO RIGHT PLACE
 						**/
+						if (S(Ansi.str).between('[',';').s){
+							g_cursor = {
+								row: parseInt(S(Ansi.str).between('[',';').s),
+								col: parseInt(S(Ansi.str).between(';','H').s)
+							}
+						}else{
+							g_cursor = {
+								row: 1,
+								col: 1
+							}
+						}
 						Ansi.state = false;
 						Ansi.str = 'no-ansi';
 						break;
@@ -60,6 +94,10 @@ function _parseNewdata(g_cursor,ScreenRow,newdataStr){
 						/**
 							CLEAR SCREEN 
 						**/
+						console.log('CLEAR SCREEN');
+						if(S(Ansi.str).contains('[2J')){
+							ScreenRow = nullScreenRow;
+						}						
 						Ansi.state = false;
 						Ansi.str = 'no-ansi';
 						break;
@@ -95,20 +133,23 @@ function _parseNewdata(g_cursor,ScreenRow,newdataStr){
 					
 					default: //normal character
 					    /*eraseOldAnsi*/
+						/*
 						var OldAnsi = detectOldAnsi(oldStr, g_cursor.col);
 						
 						if(OldAnsi.exist) ScreenRow[g_cursor.row] = eraseOldAnsi(OldAnsi, ScreenRow[g_cursor.row], g_cursor.col);
-						/*eraseOldAnsi*/
+						//eraseOldAnsi
+						*/
 						ScreenRow[g_cursor.row] = replaceCharAt(ScreenRow[g_cursor.row],g_cursor.col,ch);
 						g_cursor.col += 1;
 				
 				}
 			}
 			
+			/*
 			if(_==len-1){//if last character, copy old ansi for next word
 				if(generateWordMap(oldStr).indexOf(g_cursor.col)!=-1) ScreenRow[g_cursor.row] = addAnsiAttrSeq(ScreenRow[g_cursor.row], g_cursor.col, getNearestAnsi(oldStr, g_cursor.col));
 			}
-			
+			*/
 	}
 	
 	var fullScreen = '';
