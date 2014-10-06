@@ -14,10 +14,11 @@ myBot.login('chengrobot','ps2014',function(){
 	*/
 });
 
+/*
 myBot.sendRight(function(){
 	console.log(myBot.getScreen());
 });
-
+*/
 /*
 myBot.toBoard('gossiping',function(){
 	console.log('myBot.toBoard()');
