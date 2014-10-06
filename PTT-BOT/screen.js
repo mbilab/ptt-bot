@@ -94,7 +94,6 @@ function _parseNewdata(g_cursor,ScreenRow,newdataStr){
 						/**
 							CLEAR SCREEN 
 						**/
-						console.log('CLEAR SCREEN');
 						if(S(Ansi.str).contains('[2J')){
 							ScreenRow = nullScreenRow;
 						}						
@@ -104,7 +103,8 @@ function _parseNewdata(g_cursor,ScreenRow,newdataStr){
 						
 					default: 
 						//do nothing
-				
+						//FIXME: throw it, if unknown ANSI pattern occur.
+
 				}				
 			}
 			
