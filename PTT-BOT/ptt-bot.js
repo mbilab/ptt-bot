@@ -55,6 +55,10 @@ var g_commandsObj = {
 	PttCommands: [],
 	callbacks: []
 }
+var g_cursor = {
+	row: 0,
+	col: 0
+}
 
 /*****
 	public function
@@ -88,6 +92,8 @@ function login(id, ps, callback){
 	
 	g_conn.addListener('timeout', function(){
 		
+		console.log(g_workingState);
+		
 		var newdataStr = g_new_data;
 		
 		fs.writeFile('screen_data/screen.txt', iconv.encode(newdataStr,'big5'), function (err) {
@@ -95,14 +101,17 @@ function login(id, ps, callback){
 			console.log('It\'s saved!');
 		});
 		
+		//updateScreen(newdataStr);
 		
 		switch( g_workingState ){		
 			case 'ExcutingLogin':
 				loginDataHandler(newdataStr, id, ps);
 				break;
 				
-			case 'LoadNextPttbotComand':	
-				parseToNewScreen(newdataStr);//a bulks of bugs need to be fixed.
+			case 'LoadNextPttbotComand':
+				_parseToNewScreen(newdataStr);	
+				console.log(g_cursor.row);
+				//parseToNewScreen(newdataStr);//a bulks of bugs need to be fixed.
 				executePriorCallback();
 				sendCommand();
 				break;
@@ -120,6 +129,7 @@ function login(id, ps, callback){
 		
 		}
 		
+		
 		g_new_data = '' ;		
 		
 	});
@@ -127,6 +137,11 @@ function login(id, ps, callback){
 	return g_conn;
 }
 
+function _parseToNewScreen(newdataStr){
+	
+	g_screenBuf = screen._parseNewdata(g_cursor,g_screenBufRow,newdataStr);
+	
+}
 function parseToNewScreen(newdataStr){
 	
 	g_screenBufRow = screen.parseNewdata(g_screenBufRow,newdataStr);

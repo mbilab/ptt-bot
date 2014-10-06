@@ -12,6 +12,116 @@ var S = require('string');
 /** Regular Expression && Pattern **/
 const AnsiCursorHome = /\[(\d+)*;*(\d+)*H/g
 
+
+
+function _parseNewdata(g_cursor,ScreenRow,newdataStr){
+	
+	
+	//insert all new sequence into prior screen by simulate the terminal.
+	
+	var len = newdataStr.length;
+	var ch = '';
+	var Ansi ={
+		state : false, //default non-ANSI state.
+	    str : 'no-ansi' //default non-ANSI character.	
+	}
+	
+	for(var _ = -1, n = len ; ++_ < n ;){
+			ch = newdataStr.slice(0, 1);
+			newdataStr = newdataStr.slice(1);	
+		
+			if(Ansi.state){//in ANSI state
+			
+				Ansi.str += ch;
+			
+				switch( Ansi.str.slice(-1) ){
+				
+					case 'm':
+						ScreenRow[cursor.row] = addAnsiAttrSeq(ScreenRow[cursor.row],cursor.col,Ansi.str);
+						Ansi.state = false;
+						Ansi.str = 'no-ansi';
+						break;
+					
+					case 'K':
+						ScreenRow[g_cursor.row] = addAnsiEOLSeq(ScreenRow[g_cursor.row],g_cursor.col,Ansi.str);
+						Ansi.state = false;
+						Ansi.str = 'no-ansi';
+						break;
+					
+					case 'H':
+						/**
+							MOVE THE CURSOR TO RIGHT PLACE
+						**/
+						Ansi.state = false;
+						Ansi.str = 'no-ansi';
+						break;
+						
+					case 'J':
+						/**
+							CLEAR SCREEN 
+						**/
+						Ansi.state = false;
+						Ansi.str = 'no-ansi';
+						break;
+						
+					default: 
+						//do nothing
+				
+				}				
+			}
+			
+			else{//in non-ANSI state
+				switch(ch){
+					case '':
+						Ansi.str = ch;
+						Ansi.state = true;
+						break;
+				
+					case '\r': //carriage return: return to the col 1
+						g_cursor.col = 1;
+						break;
+						
+					case '\n': //line feed: move to next row
+						g_cursor.row += 1;
+						oldStr = ScreenRow[g_cursor.row];
+						break;
+					
+					/** FIXME: star should be consider as 2 char!?.
+					case '★':
+						ScreenRow[g_cursor.row] = replaceCharAt(ScreenRow[g_cursor.row],g_cursor.col,ch);
+						g_cursor.col += 2;
+						break;
+					**/
+					
+					default: //normal character
+					    /*eraseOldAnsi*/
+						var OldAnsi = detectOldAnsi(oldStr, g_cursor.col);
+						
+						if(OldAnsi.exist) ScreenRow[g_cursor.row] = eraseOldAnsi(OldAnsi, ScreenRow[g_cursor.row], g_cursor.col);
+						/*eraseOldAnsi*/
+						ScreenRow[g_cursor.row] = replaceCharAt(ScreenRow[g_cursor.row],g_cursor.col,ch);
+						g_cursor.col += 1;
+				
+				}
+			}
+			
+			if(_==len-1){//if last character, copy old ansi for next word
+				if(generateWordMap(oldStr).indexOf(g_cursor.col)!=-1) ScreenRow[g_cursor.row] = addAnsiAttrSeq(ScreenRow[g_cursor.row], g_cursor.col, getNearestAnsi(oldStr, g_cursor.col));
+			}
+			
+	}
+	
+	var fullScreen = '';
+	
+	for(var _=0;_<ScreenRow.length;_++){
+		fullScreen += ScreenRow[_] + '\r\n';
+	}
+	
+	return fullScreen;
+
+}
+
+
 function parseNewdata(ScreenRow,newdataStr){
 	
 	//spilt all new data into sequence. 
@@ -270,3 +380,4 @@ function addAnsiEOLSeq(str,col,seq){
 }
 
 exports.parseNewdata = parseNewdata;
+exports._parseNewdata = _parseNewdata;

@@ -5,7 +5,7 @@ var iconv = require('iconv-lite');
 //create the connection object for robot.
 myBot.login('chengrobot','ps2014',function(){
 	console.log('hi, chenchen chang, how are you?');
-	//console.log(myBot.getScreen());
+	console.log(myBot.getScreen());
 	/*
 	fs.writeFile('screen_data/cursormove.txt', iconv.encode(myBot.getScreen(),'big5'), function (err) {
 		if (err) throw err;
@@ -14,11 +14,11 @@ myBot.login('chengrobot','ps2014',function(){
 	*/
 });
 
-/*
+
 myBot.sendRight(function(){
 	console.log(myBot.getScreen());
 });
-*/
+
 /*
 myBot.toBoard('gossiping',function(){
 	console.log('myBot.toBoard()');
