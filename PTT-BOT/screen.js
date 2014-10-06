@@ -96,13 +96,16 @@ function _parseNewdata(g_cursor,ScreenRow,newdataStr){
 						**/
 						if(S(Ansi.str).contains('[2J')){
 							ScreenRow = nullScreenRow;
-						}						
+						}else{
+							console.log('got undefined ANSI-pattern');
+						}
 						Ansi.state = false;
 						Ansi.str = 'no-ansi';
 						break;
 						
 					default: 
 						//do nothing
+						console.log('got undefined ANSI-pattern');
 						//FIXME: throw it, if unknown ANSI pattern occur.
 
 				}				
