@@ -8,6 +8,14 @@ Ptt-bot is an open source node.js project for crawling data from **PTT**[4].
 
 關鍵字:　批踢踢機器人、自動化、PTT Crawler
 
+# Development
+
+第一次請先執行
+
+    $ npm i LiveScript
+    $ ./package.ls
+    $ npm i
+
 Require
 ----------
 #### string.js ####
