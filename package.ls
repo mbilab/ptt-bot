@@ -1,4 +1,4 @@
-#!/usr/local/bin/lsc -cj
+#!./node_modules/.bin/lsc -cj
 name: \ptt-bot
 version: \0.0.1
 repository:
