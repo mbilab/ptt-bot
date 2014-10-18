@@ -92,34 +92,29 @@ function login(id, ps, callback){
 	
 	g_conn.addListener('timeout', function(){
 		
-		console.log(g_workingState);
-		
 		var newdataStr = g_new_data;
 		
 		fs.writeFile('screen_data/screen.txt', iconv.encode(newdataStr,'big5'), function (err) {
 			if (err) throw err;
 			console.log('It\'s saved!');
 		});
-		
-		//updateScreen(newdataStr);
-		
+
 		switch( g_workingState ){		
 			case 'ExcutingLogin':
 				loginDataHandler(newdataStr, id, ps);
 				break;
 				
 			case 'LoadNextPttbotComand':
-				_parseToNewScreen(newdataStr);	
-				console.log(g_cursor.row);
-				//parseToNewScreen(newdataStr);//a bulks of bugs need to be fixed.
-				executePriorCallback();
-				sendCommand();
+				g_screenBuf = screen.parseNewdata(g_cursor,nullScreenRow,newdataStr);
+				executeCallback();
+				g_screenBuf = '';//clear old data
+				sendNextCommand();
 				break;
 				
 			//case 'EnteringBoard':	
 			
 			case 'CollectingArticle':
-				refreshScreen(newdataStr); //refreshScreen() is not suitable in all case. 
+				g_screenBuf = screen.parseNewdata(g_cursor,nullScreenRow,newdataStr);	
 				collectArticle(); 
 				moveToNextPage();
 				break;
@@ -135,28 +130,6 @@ function login(id, ps, callback){
 	});
 	
 	return g_conn;
-}
-
-function _parseToNewScreen(newdataStr){
-	
-	g_screenBuf = screen._parseNewdata(g_cursor,g_screenBufRow,newdataStr);
-	
-}
-function parseToNewScreen(newdataStr){
-	
-	g_screenBufRow = screen.parseNewdata(g_screenBufRow,newdataStr);
-	g_screenBuf = '';
-	
-	for(var _=0;_<g_screenBufRow.length;_++){
-		g_screenBuf += g_screenBufRow[_] + '\r\n';
-	}
-
-}
-
-function refreshScreen(newdataStr){
-
-	g_screenBuf = (S(newdataStr).left(7).s=='[H[2J' ? S(newdataStr).chompLeft('[H[2J').s : newdataStr);
-
 }
 
 function toArticle(NumStr,callback){
@@ -348,13 +321,13 @@ exports.fetchArticle = fetchArticle;
 	private function
 *****/
 
-function executePriorCallback(){
+function executeCallback(){
 
 	g_commandsObj.callbacks.shift()();
 
 }
 
-function sendCommand(){
+function sendNextCommand(){
 
 	if(g_commandsObj.PttCommands.length != 0){		
 		var PttCommand = g_commandsObj.PttCommands.shift();
@@ -375,9 +348,9 @@ function moveToNextPage(){
 	}
 	
 	else{
-		executePriorCallback();
+		executeCallback();
 		g_conn.write(Left);	//goes back to 【文章列表】
-		sendCommand();
+		sendNextCommand();
 		g_articleBuf= '';
 	}
 
@@ -470,7 +443,7 @@ function loginDataHandler(newdataStr, id, ps){
 		g_workingState = 'LoadNextPttbotComand';
 		//console.log(newdataStr);
 	
-		g_screenBufRow = screen.parseNewdata(nullScreenRow,newdataStr);
+		g_screenBufRow = screen.parseNewdata(g_cursor,nullScreenRow,newdataStr);
 
 		g_conn.write( CtrlL );
 
