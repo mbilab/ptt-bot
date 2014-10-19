@@ -14,7 +14,6 @@ var iconv = require('iconv-lite');//test
 /** Regular Expression && Pattern **/
 const AnsiCursorHome = /\[(\d+)*;*(\d+)*H/g;
 const nullScreen = '\r\n\r\n\r\n\r\n\r\n\r\n\r\n\r\n\r\n\r\n\r\n\r\n\r\n\r\n\r\n\r\n\r\n\r\n\r\n\r\n\r\n\r\n\r\n';
-const nullScreenRow = [' null_row;'].concat(S(nullScreen).lines());
 
 /* test function */
 /*
@@ -98,7 +97,7 @@ function parseNewdata(g_cursor,newdataStr){
 							CLEAR SCREEN 
 						**/
 						if(S(Ansi.str).contains('[2J')){
-							ScreenRow = nullScreenRow;
+							ScreenRow = [' null_row;'].concat(S(nullScreen).lines()); //Clear entire screen
 						}else{
 							console.log('got undefined ANSI-pattern for J');
 						}
@@ -125,7 +124,7 @@ function parseNewdata(g_cursor,newdataStr){
 						
 					case '\n': //line feed: move to next row
 						g_cursor.row += 1;
-						oldStr = ScreenRow[g_cursor.row];
+						//oldStr = ScreenRow[g_cursor.row];
 						break;
 					
 					/** FIXME: star should be consider as 2 char!?.
@@ -136,23 +135,11 @@ function parseNewdata(g_cursor,newdataStr){
 					**/
 					
 					default: //normal character
-					    /*eraseOldAnsi*/
-						/*
-						var OldAnsi = detectOldAnsi(oldStr, g_cursor.col);
-						if(OldAnsi.exist) ScreenRow[g_cursor.row] = eraseOldAnsi(OldAnsi, ScreenRow[g_cursor.row], g_cursor.col);
-						//eraseOldAnsi
-						*/
 						ScreenRow[g_cursor.row] = replaceCharAt(ScreenRow[g_cursor.row],g_cursor.col,ch);
 						g_cursor.col += 1;
 				
 				}
 			}
-			
-			/*
-			if(_==len-1){//if last character, copy old ansi for next word
-				if(generateWordMap(oldStr).indexOf(g_cursor.col)!=-1) ScreenRow[g_cursor.row] = addAnsiAttrSeq(ScreenRow[g_cursor.row], g_cursor.col, getNearestAnsi(oldStr, g_cursor.col));
-			}
-			*/
 	}
 	
 	var fullScreen = '';
