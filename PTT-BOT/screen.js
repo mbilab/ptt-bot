@@ -1,6 +1,6 @@
 /******************************************
 
-This file is consist of methods handing 
+This file is consist of methods handling 
 screen issue; that is, reconstruct the 
 screen, parse the ANSI-sequence...etc. 
 
