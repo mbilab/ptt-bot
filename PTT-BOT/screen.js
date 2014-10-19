@@ -19,17 +19,17 @@ const nullScreenRow = [' null_row;'].concat(S(nullScreen).lines());
 /* test function */
 /*
 (function(){
-	fs.readFile('../screen_data/main.txt', function (err, data) {
+	fs.readFile('../screen_data/screen.txt', function (err, data) {
 		if (err) throw err;
-		//console.log(iconv.decode(iconv.encode(data,'big5'),'big5'));
+		console.log(iconv.decode(iconv.encode(data,'big5'),'big5'));
+		console.log(iconv.decode(data,'big5'));
 		const orginScreen = '1234\r\n23\r\n\r\n\r\n\r\n\r\n\r\n\r\n\r\n\r\n\r\n\r\n\r\n\r\n\r\n\r\n\r\n\r\n\r\n\r\n\r\n\r\n\r\n';
 		const orginScreenRow = [' null_row;'].concat(S(orginScreen).lines());
 		var a =	parseNewdata(  {
 								row: 0,
 								col: 0
 								},
-								orginScreenRow,
-								iconv.decode(iconv.encode(data,'big5'),'big5')
+								iconv.decode(data,'big5')
 							);
 		fs.writeFile('../screen_data/result.txt', iconv.encode(a,'big5'), function (err) {
 			if (err) throw err;
@@ -39,21 +39,10 @@ const nullScreenRow = [' null_row;'].concat(S(nullScreen).lines());
 })();
 */
 
-function parseNewdata(g_cursor,old,newdataStr){
+function parseNewdata(g_cursor,newdataStr){
 	
 	//ScreenRow應該是清空的狀態阿!
-	var ScreenRow = nullScreenRow;
-	var f = '';
-	for(var _=0;_<ScreenRow.length;_++){
-		ScreenRow[_] + '\r\n';
-	}
-	for(var _=0;_<ScreenRow.length;_++){
-		f += ScreenRow[_] + '\r\n';
-	}
-	fs.writeFile('./screen_data/f.txt', iconv.encode(f,'big5'), function (err) {
-			if (err) throw err;
-			console.log('It\'s saved!');
-	});
+	var ScreenRow = [' null_row;'].concat(S(nullScreen).lines());
 	
 	//insert all new sequence into prior screen by simulate the terminal.
 	var len = newdataStr.length;

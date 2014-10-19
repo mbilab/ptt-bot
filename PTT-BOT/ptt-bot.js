@@ -67,7 +67,7 @@ function login(id, ps, callback){
 
 	g_conn = net.createConnection(23, 'ptt.cc');
 	
-	g_conn.setTimeout(700);
+	g_conn.setTimeout(1000);
 	
 	g_commandsObj.callbacks.push((callback ? callback : function(){}));	
 	
@@ -93,11 +93,6 @@ function login(id, ps, callback){
 	g_conn.addListener('timeout', function(){
 		
 		var newdataStr = g_new_data;
-		
-		fs.writeFile('screen_data/screen.txt', iconv.encode(newdataStr,'big5'), function (err) {
-			if (err) throw err;
-			console.log('It\'s saved!');
-		});
 
 		switch( g_workingState ){		
 			case 'ExcutingLogin':
@@ -105,7 +100,7 @@ function login(id, ps, callback){
 				break;
 				
 			case 'LoadNextPttbotComand':
-				g_screenBuf = screen.parseNewdata(g_cursor,nullScreenRow,newdataStr);
+				g_screenBuf = screen.parseNewdata(g_cursor,newdataStr);
 				executeCallback();
 				g_screenBuf = '';//clear old data
 				sendNextCommand();
@@ -114,7 +109,7 @@ function login(id, ps, callback){
 			//case 'EnteringBoard':	
 			
 			case 'CollectingArticle':
-				g_screenBuf = screen.parseNewdata(g_cursor,nullScreenRow,newdataStr);	
+				g_screenBuf = screen.parseNewdata(g_cursor,newdataStr);	
 				collectArticle(); 
 				moveToNextPage();
 				break;
@@ -144,7 +139,7 @@ function fetchArticle(callback){
 	var command = CtrlL;
 	addCommands(command,function(){
 		g_workingState = 'CollectingArticle';
-		g_screenBufRow = nullScreenRow;//clean old data, since g_screenBufRow is not used until nextPttComand. 
+		g_screenBufRow = [' null_row;'].concat(S(nullScreen).lines());//clean old data, since g_screenBufRow is not used until nextPttComand. 
 	});
 	addCommands(command,callback);
 	
@@ -443,7 +438,7 @@ function loginDataHandler(newdataStr, id, ps){
 		g_workingState = 'LoadNextPttbotComand';
 		//console.log(newdataStr);
 	
-		g_screenBufRow = screen.parseNewdata(g_cursor,nullScreenRow,newdataStr);
+		g_screenBufRow = screen.parseNewdata(g_cursor,newdataStr);
 
 		g_conn.write( CtrlL );
 
