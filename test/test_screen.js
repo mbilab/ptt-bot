@@ -1,5 +1,9 @@
-/* test function */
+var screen = require('../PTT-BOT/screen');
+var fs = require('fs');
+var iconv = require('iconv-lite'); 
+var S = require('string');
 
+//test function
 (function(){
 	fs.readFile('../screen_data/screen.txt', function (err, data) {
 		if (err) throw err;
@@ -7,7 +11,7 @@
 		console.log(iconv.decode(data,'big5'));
 		const orginScreen = '1234\r\n23\r\n\r\n\r\n\r\n\r\n\r\n\r\n\r\n\r\n\r\n\r\n\r\n\r\n\r\n\r\n\r\n\r\n\r\n\r\n\r\n\r\n\r\n';
 		const orginScreenRow = [' null_row;'].concat(S(orginScreen).lines());
-		var a =	parseNewdata(  {
+		var a =	screen.parseNewdata(  {
 								row: 0,
 								col: 0
 								},
@@ -15,7 +19,7 @@
 							);
 		fs.writeFile('../screen_data/result.txt', iconv.encode(a,'big5'), function (err) {
 			if (err) throw err;
-			console.log('It\'s saved!');
+			console.log('test file saved!');
 		});
 	});
 })();

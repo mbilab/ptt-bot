@@ -8,8 +8,6 @@ screen, parse the ANSI-sequence...etc.
 
 /** node modulus **/
 var S = require('string');
-var fs = require('fs');//test
-var iconv = require('iconv-lite');//test
 
 /** Regular Expression && Pattern **/
 const AnsiCursorHome = /\[(\d+)*;*(\d+)*H/g;
