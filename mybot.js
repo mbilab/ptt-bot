@@ -15,8 +15,8 @@ myBot.login('chengrobot','ps2014',function(){
 });
 
 
-myBot.toBoard('gossiping',function(){
-	console.log(myBot.getScreen());
+myBot.toBoard('movie',function(){
+	//console.log(myBot.getScreen());
 	
 	fs.writeFile('screen_data/toBoard.txt', iconv.encode(myBot.getScreen(),'big5'), function (err) {
 		if (err) throw err;

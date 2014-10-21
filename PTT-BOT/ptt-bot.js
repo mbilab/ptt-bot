@@ -106,7 +106,8 @@ function login(id, ps, callback){
 				sendNextCommand();
 				break;
 				
-			//case 'EnteringBoard':	
+			case 'EnteringBoard':
+				enteringBoardDataHandler(newdataStr);
 			
 			case 'CollectingArticle':
 				g_screenBuf = screen.parseNewdata(g_cursor,newdataStr);	
@@ -211,8 +212,12 @@ function pressAnyKey(callback){
 function toBoard( BoardName,callback ){
 
 	var command = 's' + BoardName + '\r';
+	addCommands(CtrlL,function(){
+		g_workingState = 'EnteringBoard';
+		g_screenBufRow = [' null_row;'].concat(S(nullScreen).lines());//clean old data, since g_screenBufRow is not used until nextPttComand. 
+	});
 	addCommands(command,callback);
-
+	
 }
 
 function sendCtrlL(callback){
@@ -444,4 +449,22 @@ function loginDataHandler(newdataStr, id, ps){
 
 	}	
 
+}
+function enteringBoardDataHandler(newdataStr){
+	
+	console.log('enteringBoardDataHandler');
+	if (newdataStr.indexOf("按任意鍵繼續") != -1){
+	
+		g_conn.write( Enter );
+		console.log("[32m已按任意見繼續 進入看板[m");
+		console.log('daaa');
+	
+	}
+	else{ 
+		
+		g_conn.write( CtrlL );
+		console.log('CtrlL');
+		g_workingState = 'LoadNextPttbotComand';
+		
+	}	
 }

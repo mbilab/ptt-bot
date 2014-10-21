@@ -16,8 +16,7 @@ const nullScreen = '\r\n\r\n\r\n\r\n\r\n\r\n\r\n\r\n\r\n\r\n\r\n\r\n\r\n\r\n\r\n
 
 
 function parseNewdata(g_cursor,newdataStr){
-	
-	//ScreenRow應該是清空的狀態阿!
+
 	var ScreenRow = [' null_row;'].concat(S(nullScreen).lines());
 	
 	//insert all new sequence into prior screen by simulate the terminal.
