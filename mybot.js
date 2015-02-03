@@ -3,6 +3,7 @@ var fs = require('fs');
 var iconv = require('iconv-lite'); 
 
 //create the connection object for robot.
+console.log('long time no see!');
 myBot.login('chengrobot','ps2014',function(){
 	console.log('hi, chenchen chang, how are you?');
 	//console.log(myBot.getScreen());
