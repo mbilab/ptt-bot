@@ -36,11 +36,12 @@ const ArticleList = 5; //【文章列表】
 const Article = 6; //【文章內】
 
 /** Working State **/
-/*
-const 'LoadNextPttbotComand' = 0;
-const 'ExcutingLogin' = 1;
-const 'CollectingArticle' = 2;
-*/
+
+const State_ExcutingLogin = 0;
+const State_LoadNextPttbotComand = 1;
+const State_EnteringBoard = 2;
+const State_CollectingArticle = 3;
+
 
 /** para @ global screen **/
 const nullScreen = '\r\n\r\n\r\n\r\n\r\n\r\n\r\n\r\n\r\n\r\n\r\n\r\n\r\n\r\n\r\n\r\n\r\n\r\n\r\n\r\n\r\n\r\n\r\n';
@@ -50,7 +51,7 @@ var g_screenBuf = 'wait...';//mimic screen of terminal
 var g_screenBufRow = [];
 var g_articleBuf = '';
 var g_new_data = '';
-var g_workingState = 'ExcutingLogin';
+var g_workingState = State_ExcutingLogin;
 var g_commandsObj = {
 	PttCommands: [],
 	callbacks: []
@@ -95,21 +96,21 @@ function login(id, ps, callback){
 		var newdataStr = g_new_data;
 
 		switch( g_workingState ){		
-			case 'ExcutingLogin':
+			case State_ExcutingLogin:
 				loginDataHandler(newdataStr, id, ps);
 				break;
 				
-			case 'LoadNextPttbotComand':
+			case State_LoadNextPttbotComand:
 				g_screenBuf = screen.parseNewdata(g_cursor,newdataStr);
 				executeCallback();
 				g_screenBuf = '';//clear old data
 				sendNextCommand();
 				break;
 				
-			case 'EnteringBoard':
+			case State_EnteringBoard:
 				enteringBoardDataHandler(newdataStr);
 			
-			case 'CollectingArticle':
+			case State_CollectingArticle:
 				g_screenBuf = screen.parseNewdata(g_cursor,newdataStr);	
 				collectArticle(); 
 				moveToNextPage();
@@ -139,7 +140,7 @@ function fetchArticle(callback){
 	
 	var command = CtrlL;
 	addCommands(command,function(){
-		g_workingState = 'CollectingArticle';
+		g_workingState = State_CollectingArticle;
 		g_screenBufRow = [' null_row;'].concat(S(nullScreen).lines());//clean old data, since g_screenBufRow is not used until nextPttComand. 
 	});
 	addCommands(command,callback);
@@ -213,7 +214,7 @@ function toBoard( BoardName,callback ){
 
 	var command = 's' + BoardName + '\r';
 	addCommands(CtrlL,function(){
-		g_workingState = 'EnteringBoard';
+		g_workingState = State_EnteringBoard;
 		g_screenBufRow = [' null_row;'].concat(S(nullScreen).lines());//clean old data, since g_screenBufRow is not used until nextPttComand. 
 	});
 	addCommands(command,callback);
@@ -343,7 +344,7 @@ function sendNextCommand(){
 
 function moveToNextPage(){
 
-	if(g_workingState=='CollectingArticle') {
+	if(g_workingState==State_CollectingArticle) {
 		g_conn.write(Right+CtrlL);
 	}
 	
@@ -375,7 +376,7 @@ function collectArticle(){
 	}
 	
 	if(S(g_screenBuf).between(ArticlePercentStart,ArticlePercentEnd).s == '100'){
-		g_workingState = 'LoadNextPttbotComand';
+		g_workingState = State_LoadNextPttbotComand;
 	}
 	
 }
@@ -440,7 +441,7 @@ function loginDataHandler(newdataStr, id, ps){
 	if (newdataStr.indexOf("離開，再見…") != -1){
 	
 		console.log( 'Robot commands for main screen should be executed here.↓ ↓ ↓\n[1;32m您現在位於【主功能表】[m' ); 
-		g_workingState = 'LoadNextPttbotComand';
+		g_workingState = State_LoadNextPttbotComand;
 		//console.log(newdataStr);
 	
 		g_screenBufRow = screen.parseNewdata(g_cursor,newdataStr);
@@ -464,7 +465,7 @@ function enteringBoardDataHandler(newdataStr){
 		
 		g_conn.write( CtrlL );
 		console.log('CtrlL');
-		g_workingState = 'LoadNextPttbotComand';
+		g_workingState = State_LoadNextPttbotComand;
 		
 	}	
 }

@@ -13,7 +13,7 @@ fs.readFile('myID.txt',{encoding:'utf-8'}, function (err, data) {
 	//create the connection object for robot.
 	console.log('long time no see!');
 	myBot.login( id, ps, function(){
-		console.log('hi, chenchen chang, how are you?');
+		console.log('hi, chenchen chang, something about state is fixed');
 		//console.log(myBot.getScreen());
 		/*
 		fs.writeFile('screen_data/cursormove.txt', iconv.encode(myBot.getScreen(),'big5'), function (err) {
