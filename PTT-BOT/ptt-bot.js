@@ -36,7 +36,6 @@ const ArticleList = 5; //【文章列表】
 const Article = 6; //【文章內】
 
 /** Working State **/
-
 const State_ExcutingLogin = 0;
 const State_LoadNextPttbotComand = 1;
 const State_EnteringBoard = 2;
@@ -104,11 +103,13 @@ function login(id, ps, callback){
 				g_screenBuf = screen.parseNewdata(g_cursor,newdataStr);
 				executeCallback();
 				g_screenBuf = '';//clear old data
-				sendNextCommand();
+				loadNextCommand();
 				break;
 				
 			case State_EnteringBoard:
+				/*	 something wrong here	*/
 				enteringBoardDataHandler(newdataStr);
+				break;
 			
 			case State_CollectingArticle:
 				g_screenBuf = screen.parseNewdata(g_cursor,newdataStr);	
@@ -138,12 +139,11 @@ function toArticle(NumStr,callback){
 
 function fetchArticle(callback){
 	
-	var command = CtrlL;
-	addCommands(command,function(){
+	addCallbackWithNullCommand(function(){ 
 		g_workingState = State_CollectingArticle;
 		g_screenBufRow = [' null_row;'].concat(S(nullScreen).lines());//clean old data, since g_screenBufRow is not used until nextPttComand. 
 	});
-	addCommands(command,callback);
+	addCommands(CtrlL,callback);
 	
 }
 
@@ -210,14 +210,24 @@ function pressAnyKey(callback){
 
 }
 
+function returnToMain(){
+	
+	//比照toBoard的想法 新增狀態 returning to Main 隨著狀態(screen當下位置)的不同而下不同的指令回主選單
+	//ctrlz 可以快去切換去某些地方 但在某些地方(文章內) 並不適用
+
+}
+
 function toBoard( BoardName,callback ){
 
+	/*  Something wrong here   */
 	var command = 's' + BoardName + '\r';
-	addCommands(CtrlL,function(){
+	addCallbackWithNullCommand(function(){
 		g_workingState = State_EnteringBoard;
 		g_screenBufRow = [' null_row;'].concat(S(nullScreen).lines());//clean old data, since g_screenBufRow is not used until nextPttComand. 
 	});
 	addCommands(command,callback);
+	
+	console.log( g_commandsObj );
 	
 }
 
@@ -262,10 +272,10 @@ function MaintoFavBoard(callback){
 function MaintoHotBoard(){
 
 	/**FIXME**/
-	g_conn.write( 'c' );
-	g_conn.write( '\r' );
-	g_conn.write( 'p' );
-	g_conn.write( '\r' );	
+	sendCommand( 'c' );
+	sendCommand( '\r' );
+	sendCommand( 'p' );
+	sendCommand( '\r' );	
 
 }
 
@@ -328,11 +338,15 @@ function executeCallback(){
 
 }
 
-function sendNextCommand(){
+function sendCommand(command){
+	g_conn.write(command);
+}
+
+function loadNextCommand(){
 
 	if(g_commandsObj.PttCommands.length != 0){		
 		var PttCommand = g_commandsObj.PttCommands.shift();
-		g_conn.write(PttCommand+CtrlL);	//FixMe
+		sendCommand(PttCommand+CtrlL);	//FixMe
 	}
 	
 	else {
@@ -345,13 +359,13 @@ function sendNextCommand(){
 function moveToNextPage(){
 
 	if(g_workingState==State_CollectingArticle) {
-		g_conn.write(Right+CtrlL);
+		sendCommand(Right+CtrlL);
 	}
 	
 	else{
 		executeCallback();
-		g_conn.write(Left);	//goes back to 【文章列表】
-		sendNextCommand();
+		sendCommand(Left);	//goes back to 【文章列表】
+		loadNextCommand();
 		g_articleBuf= '';
 	}
 
@@ -382,8 +396,21 @@ function collectArticle(){
 }
 
 function addCommands(command,callback){
-
+	
 	g_commandsObj.PttCommands.push(command);
+	g_commandsObj.callbacks.push((callback ? callback : function(){}));	
+	
+}
+
+/* 	
+	Add callback function for null command, mostly used for 
+	state transfer internally before execute user's callback 
+	function.
+	
+*/
+function addCallbackWithNullCommand(callback){
+	
+	g_commandsObj.PttCommands.push(CtrlL);//CtrlL is useless in here. Not for ask for reload screen data.
 	g_commandsObj.callbacks.push((callback ? callback : function(){}));	
 
 }
@@ -407,7 +434,7 @@ function loginDataHandler(newdataStr, id, ps){
 	}
 	
 	if (newdataStr.indexOf("您想刪除其他重複登入的連線嗎") != -1){
-		g_conn.write( 'y\r' );	
+		sendCommand( 'y\r' );	
 		console.log( '已刪除其他重複登入的連線' );
 	}
 	
@@ -417,24 +444,24 @@ function loginDataHandler(newdataStr, id, ps){
 	
 	if (newdataStr.indexOf("請輸入代號，或以 guest 參觀，或以 new 註冊:") != -1){
 		console.log("[1;33m請輸入代號，或以 guest 參觀，或以 new 註冊:[m");
-		g_conn.write( id+'\r' );
+		sendCommand( id+'\r' );
 		console.log("[32m(已輸入帳號)[m");
 	}
 	
 	if (newdataStr.indexOf("請輸入您的密碼") != -1){
 		console.log("[1;33m請輸入您的密碼:[m");
-		g_conn.write( ps+'\r' );
+		sendCommand( ps+'\r' );
 		console.log("[32m(已輸入密碼)[m");
 	}		
 	
 	if (newdataStr.indexOf("歡迎您再度拜訪") != -1){
 		console.log("[1;33m歡迎您再度拜訪![m");
-		g_conn.write( '\r' );
+		sendCommand( '\r' );
 		console.log("[32m(已按任意鍵繼續)[m");
 	}
 	
 	if (newdataStr.indexOf("按任意鍵繼續") != -1 && newdataStr.indexOf("請勿頻繁登入以免造成系統過度負荷") != -1){
-		g_conn.write( '\r' );
+		sendCommand( '\r' );
 		console.log("[32m(請勿頻繁登入以免造成系統過度負荷)[m");
 	}
 	
@@ -446,24 +473,29 @@ function loginDataHandler(newdataStr, id, ps){
 	
 		g_screenBufRow = screen.parseNewdata(g_cursor,newdataStr);
 
-		g_conn.write( CtrlL );
+		sendCommand( CtrlL );
 
 	}	
 
 }
+
+/*
+	FixME: 有些版有進版動畫, 會進入到頁面
+		   but most case is OK!
+*/
 function enteringBoardDataHandler(newdataStr){
 	
 	console.log('enteringBoardDataHandler');
 	if (newdataStr.indexOf("按任意鍵繼續") != -1){
 	
-		g_conn.write( Enter );
+		sendCommand( Enter );
 		console.log("[32m已按任意見繼續 進入看板[m");
 		console.log('daaa');
 	
 	}
 	else{ 
 		
-		g_conn.write( CtrlL );
+		sendCommand( CtrlL );
 		console.log('CtrlL');
 		g_workingState = State_LoadNextPttbotComand;
 		
