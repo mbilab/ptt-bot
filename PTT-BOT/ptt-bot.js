@@ -108,7 +108,6 @@ function login(id, ps, callback){
 				break;
 				
 			case State_EnteringBoard:
-				/*	 something wrong here	*/
 				enteringBoardDataHandler(newdataStr);
 				break;
 			
@@ -117,6 +116,9 @@ function login(id, ps, callback){
 				collectArticle(); 
 				moveToNextPage();
 				break;
+				
+			case State_ReturningToMain:
+				//go back to main screen
 				
 			default :
 				console.log('working state is undifined.');
@@ -129,6 +131,29 @@ function login(id, ps, callback){
 	});
 	
 	return g_conn;
+}
+
+
+function returnMain( callback ){
+	
+	//比照toBoard的想法 新增狀態 returning to Main 隨著狀態(screen當下位置)的不同而下不同的指令回主選單
+	//ctrlz 可以快去切換去某些地方 但在某些地方(文章內) 並不適用
+	addCallbackWithNullCommand(function(){ //在傳送指令前, 先將ptt-bot的狀態改變
+		g_workingState = State_ReturningToMain;
+		g_screenBufRow = [' null_row;'].concat(S(nullScreen).lines());//clean old data, since g_screenBufRow is not used until nextPttComand. 
+	});
+
+}
+
+function toBoard( BoardName,callback ){
+
+	var command = 's' + BoardName + '\r';
+	addCallbackWithNullCommand(function(){ //在傳送指令前, 先將ptt-bot的狀態改變
+		g_workingState = State_EnteringBoard;
+		g_screenBufRow = [' null_row;'].concat(S(nullScreen).lines());//clean old data, since g_screenBufRow is not used until nextPttComand. 
+	});
+	addCommands(command,callback);
+	
 }
 
 function toArticle(NumStr,callback){
@@ -209,27 +234,6 @@ function pressAnyKey(callback){
 
 	addCommands(Enter,callback);
 
-}
-
-function returnToMain(){
-	
-	//比照toBoard的想法 新增狀態 returning to Main 隨著狀態(screen當下位置)的不同而下不同的指令回主選單
-	//ctrlz 可以快去切換去某些地方 但在某些地方(文章內) 並不適用
-
-}
-
-function toBoard( BoardName,callback ){
-
-	/*  Something wrong here   */
-	var command = 's' + BoardName + '\r';
-	addCallbackWithNullCommand(function(){
-		g_workingState = State_EnteringBoard;
-		g_screenBufRow = [' null_row;'].concat(S(nullScreen).lines());//clean old data, since g_screenBufRow is not used until nextPttComand. 
-	});
-	addCommands(command,callback);
-	
-	console.log( g_commandsObj );
-	
 }
 
 function sendCtrlL(callback){

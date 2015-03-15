@@ -36,7 +36,15 @@ fs.readFile('myID.txt',{encoding:'utf-8'}, function (err, data) {
 	});
 	
 	
+	myBot.toArticle('52642',function(){ //or myBot.sendRight()
+		console.log(myBot.getScreen());
+		
+	});
 	
+	myBot.fetchArticle(function(){
+		console.log(myBot.getArticle());
+		console.log(myBot.where());
+	});
 });
 
 
