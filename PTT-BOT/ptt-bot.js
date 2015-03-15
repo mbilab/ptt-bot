@@ -40,6 +40,7 @@ const State_ExcutingLogin = 0;
 const State_LoadNextPttbotComand = 1;
 const State_EnteringBoard = 2;
 const State_CollectingArticle = 3;
+const State_ReturningToMain = 4;
 
 
 /** para @ global screen **/
