@@ -24,6 +24,7 @@ fs.readFile('myID.txt',{encoding:'utf-8'}, function (err, data) {
 		*/
 	});
 	
+	
 	myBot.toBoard('movie',function(){
 		console.log('下面應該要是電影版');
 		console.log(myBot.getScreen());
@@ -35,16 +36,11 @@ fs.readFile('myID.txt',{encoding:'utf-8'}, function (err, data) {
 		console.log(myBot.where());
 	});
 	
-	
-	myBot.toArticle('52642',function(){ //or myBot.sendRight()
+	myBot.returnMain();
+	myBot.sendRight(function(){
 		console.log(myBot.getScreen());
-		
 	});
 	
-	myBot.fetchArticle(function(){
-		console.log(myBot.getArticle());
-		console.log(myBot.where());
-	});
 });
 
 

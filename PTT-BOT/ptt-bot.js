@@ -119,6 +119,11 @@ function login(id, ps, callback){
 				
 			case State_ReturningToMain:
 				//go back to main screen
+				g_screenBuf = screen.parseNewdata(g_cursor,newdataStr);
+				console.log('hihi State_ReturningToMain');
+				g_screenBuf = '';//clear old data
+				ReturningMainDataHandler(newdataStr);
+				break;
 				
 			default :
 				console.log('working state is undifined.');
@@ -138,11 +143,15 @@ function returnMain( callback ){
 	
 	//比照toBoard的想法 新增狀態 returning to Main 隨著狀態(screen當下位置)的不同而下不同的指令回主選單
 	//ctrlz 可以快去切換去某些地方 但在某些地方(文章內) 並不適用
+	
 	addCallbackWithNullCommand(function(){ //在傳送指令前, 先將ptt-bot的狀態改變
 		g_workingState = State_ReturningToMain;
 		g_screenBufRow = [' null_row;'].concat(S(nullScreen).lines());//clean old data, since g_screenBufRow is not used until nextPttComand. 
 	});
-
+	addCommands(CtrlL,function(){
+		console.log(g_screenBuf);
+	});//重傳內容, 讓bot根據不同的內容作不同的回應
+	
 }
 
 function toBoard( BoardName,callback ){
@@ -248,13 +257,13 @@ function sendPageUp(callback){
 
 }
 
-function sendPageDown(){
+function sendPageDown(callback){
 
 	addCommands(pageDown,callback);	
 
 }
 
-function sendLeft(){
+function sendLeft(callback){
 
 	addCommands(Left,callback);
 	
@@ -318,6 +327,7 @@ exports.getArticle = getArticle;
 exports.pressAnyKey = pressAnyKey;
 exports.where = where;
 exports.escapeANSI = escapeANSI;
+exports.returnMain = returnMain;
 exports.toBoard = toBoard;
 exports.toArticle = toArticle;
 exports.toArticlesList = toBoard;
@@ -484,6 +494,56 @@ function loginDataHandler(newdataStr, id, ps){
 
 }
 
+function ReturningMainDataHandler(newdataStr){
+	//根據不同的地點執行不同的指令到回到相同的MAIN
+	/*
+	if (screenStr.indexOf("主功能表") != -1){
+		return Main;
+	}
+	
+	else if(screenStr.indexOf("文章選讀") != -1 && screenStr.indexOf("進板畫面") != -1){
+		return ArticleList;
+	}
+	
+	else if(screenStr.indexOf("目前顯示") != -1 && screenStr.indexOf("瀏覽 第") != -1){
+		return Article;
+	}
+	
+	else if(screenStr.indexOf("只列最愛") != -1){
+		return HotBoard;
+	}
+	
+	else if(screenStr.indexOf("看板列") != -1 && screenStr.indexOf("增加看板") != -1){
+		return FavBoard;
+	}
+	
+	else if(screenStr.indexOf("加入/移出最愛") != -1){
+		return BoardList;
+	}
+	
+	else if(screenStr.indexOf("即時熱門看板") != -1){
+		return BoardClass;
+	}
+	
+	else{
+		console.log("Error: where can't find where you are.");
+		return false;
+	}
+	*/
+	if (newdataStr.indexOf("文章選讀") != -1 && newdataStr.indexOf("進板畫面") != -1){
+		//執行回去的指令
+		sendCommand( Left );//應該使用CtrlZ較佳
+		console.log("[32m 已按Left返回 [m");
+	
+	}
+	else{
+		//已回主功能表
+		g_workingState = State_LoadNextPttbotComand;
+		sendCommand( CtrlL );//for emit next command
+		
+	}
+}	
+
 /*
 	FixME: 有些版有進版動畫, 會進入到頁面
 		   but most case is OK!
@@ -495,13 +555,11 @@ function enteringBoardDataHandler(newdataStr){
 	
 		sendCommand( Enter );
 		console.log("[32m已按任意見繼續 進入看板[m");
-		console.log('daaa');
 	
 	}
 	else{ 
 		
 		sendCommand( CtrlL );
-		console.log('CtrlL');
 		g_workingState = State_LoadNextPttbotComand;
 		
 	}	
