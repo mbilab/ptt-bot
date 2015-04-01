@@ -104,7 +104,7 @@ function login(id, ps, callback){
 			case State_LoadNextPttbotComand:
 				g_screenBuf = screen.parseNewdata(g_cursor,newdataStr);
 				executeCallback();
-				g_screenBuf = '';//clear old data
+				clearSceenBuf();
 				loadNextCommand();
 				break;
 				
@@ -119,10 +119,8 @@ function login(id, ps, callback){
 				break;
 				
 			case State_ReturningToMain:
-				//go back to main screen
 				g_screenBuf = screen.parseNewdata(g_cursor,newdataStr);
-				console.log('hihi State_ReturningToMain');
-				g_screenBuf = '';//clear old data
+				clearSceenBuf();
 				ReturningMainDataHandler(newdataStr);
 				break;
 				
@@ -130,7 +128,6 @@ function login(id, ps, callback){
 				console.log('working state is undifined.');
 		
 		}
-		
 		
 		g_new_data = '' ;		
 		
@@ -142,25 +139,22 @@ function login(id, ps, callback){
 
 function returnMain( callback ){
 	
-	//比照toBoard的想法 新增狀態 returning to Main 隨著狀態(screen當下位置)的不同而下不同的指令回主選單
-	//ctrlz 可以快去切換去某些地方 但在某些地方(文章內) 並不適用
-	
-	addCallbackWithNullCommand(function(){ //在傳送指令前, 先將ptt-bot的狀態改變
+	addCallbackWithNullCommand(function(){ /* 在傳送指令前, 先將ptt-bot的狀態改變 */
 		g_workingState = State_ReturningToMain;
-		g_screenBufRow = [' null_row;'].concat(S(nullScreen).lines());//clean old data, since g_screenBufRow is not used until nextPttComand. 
+		clearScreenBufRow();//clean old data, since g_screenBufRow is not used until nextPttComand. 
 	});
 	addCommands(CtrlL,function(){
-		console.log(g_screenBuf);
-	});//重傳內容, 讓bot根據不同的內容作不同的回應
+		/* 重傳內容, 讓bot根據不同的內容作不同的回應 */
+	});
 	
 }
 
 function toBoard( BoardName,callback ){
 
 	var command = 's' + BoardName + '\r';
-	addCallbackWithNullCommand(function(){ //在傳送指令前, 先將ptt-bot的狀態改變
+	addCallbackWithNullCommand(function(){ /* 在傳送指令前, 先將ptt-bot的狀態改變 */
 		g_workingState = State_EnteringBoard;
-		g_screenBufRow = [' null_row;'].concat(S(nullScreen).lines());//clean old data, since g_screenBufRow is not used until nextPttComand. 
+		clearScreenBufRow();//clean old data, since g_screenBufRow is not used until nextPttComand. 
 	});
 	addCommands(command,callback);
 	
@@ -177,7 +171,7 @@ function fetchArticle(callback){
 	
 	addCallbackWithNullCommand(function(){ 
 		g_workingState = State_CollectingArticle;
-		g_screenBufRow = [' null_row;'].concat(S(nullScreen).lines());//clean old data, since g_screenBufRow is not used until nextPttComand. 
+		clearScreenBufRow();//clean old data, since g_screenBufRow is not used until nextPttComand. 
 	});
 	addCommands(CtrlL,callback);
 	
@@ -340,9 +334,9 @@ function moveToNextPage(){
 	
 	else{
 		executeCallback();
-		sendCommand(Left);	//goes back to 【文章列表】
+		sendCommand(Left);	/* goes back to ArticleList */
 		loadNextCommand();
-		g_articleBuf= '';
+		clearArticleBuf();
 	}
 
 }
@@ -499,7 +493,6 @@ function ReturningMainDataHandler(newdataStr){
 */
 function enteringBoardDataHandler(newdataStr){
 	
-	console.log('enteringBoardDataHandler');
 	if (newdataStr.indexOf("按任意鍵繼續") != -1){
 	
 		sendCommand( Enter );
@@ -549,6 +542,24 @@ function where(screenData){
 	else{
 		console.log("Error: where can't find where you are.");
 		return false;
-	}
+	} 
 	
+}
+
+function clearSceenBuf(){
+	
+	g_screenBuf = '';
+	
+}
+
+function clearArticleBuf(){
+	
+	g_articleBuf = '';
+
+}
+
+function clearScreenBufRow(){
+
+	g_screenBufRow = [' null_row;'].concat(S(nullScreen).lines());
+
 }
