@@ -25,6 +25,7 @@ const Down = '\u001b[B';
 const PageUp = 'P';
 const PageDown = 'N';
 const CtrlL = '\u000c';
+const CtrlZ = '\u001a';
 
 /** Screens **/
 const Main = 0; //【主功能表】
@@ -194,45 +195,6 @@ function getArticle(){
 
 }
 
-function where(){
-
-	/**FIXME**/
-	var screenStr = iconv.decode(iconv.encode(g_screenBuf,'big5'),'big5');
-	if (screenStr.indexOf("主功能表") != -1){
-		return Main;
-	}
-	
-	else if(screenStr.indexOf("文章選讀") != -1 && screenStr.indexOf("進板畫面") != -1){
-		return ArticleList;
-	}
-	
-	else if(screenStr.indexOf("目前顯示") != -1 && screenStr.indexOf("瀏覽 第") != -1){
-		return Article;
-	}
-	
-	else if(screenStr.indexOf("只列最愛") != -1){
-		return HotBoard;
-	}
-	
-	else if(screenStr.indexOf("看板列") != -1 && screenStr.indexOf("增加看板") != -1){
-		return FavBoard;
-	}
-	
-	else if(screenStr.indexOf("加入/移出最愛") != -1){
-		return BoardList;
-	}
-	
-	else if(screenStr.indexOf("即時熱門看板") != -1){
-		return BoardClass;
-	}
-	
-	else{
-		console.log("Error: where can't find where you are.");
-		return false;
-	}
-	
-}
-
 function escapeANSI(str){
 
 	return	str.replace(AnsiSetDisplayAttr,"");
@@ -325,7 +287,6 @@ exports.login = login;
 exports.getScreen = getScreen;
 exports.getArticle = getArticle;
 exports.pressAnyKey = pressAnyKey;
-exports.where = where;
 exports.escapeANSI = escapeANSI;
 exports.returnMain = returnMain;
 exports.toBoard = toBoard;
@@ -484,7 +445,6 @@ function loginDataHandler(newdataStr, id, ps){
 	
 		console.log( 'Robot commands for main screen should be executed here.↓ ↓ ↓\n[1;32m您現在位於【主功能表】[m' ); 
 		g_workingState = State_LoadNextPttbotComand;
-		//console.log(newdataStr);
 	
 		g_screenBufRow = screen.parseNewdata(g_cursor,newdataStr);
 
@@ -495,8 +455,69 @@ function loginDataHandler(newdataStr, id, ps){
 }
 
 function ReturningMainDataHandler(newdataStr){
+	
 	//根據不同的地點執行不同的指令到回到相同的MAIN
-	/*
+	switch( where(newdataStr) ){
+		
+		case ArticleList:
+			sendCommand( CtrlZ+'t'+Left );
+			break;
+		
+		case Article:
+			sendCommand( Left+CtrlZ+'t'+Left );
+			break;
+			
+		case HotBoard:
+			sendCommand( CtrlZ+'t'+Left );
+			break;
+			
+		case FavBoard:
+			sendCommand( CtrlZ+'t'+Left );
+			break;
+			
+		case BoardList:
+			sendCommand( CtrlZ+'t'+Left );
+			break;
+		
+		case BoardClass:
+			sendCommand( CtrlZ+'t'+Left );
+			break;
+		
+		default:
+			/* 已回主功能表 */
+			g_workingState = State_LoadNextPttbotComand;
+			sendCommand( CtrlL );//for emit next command
+			console.log('已經回到主頁面囉!!!');
+	
+	}	
+	
+}	
+
+/*
+	FixME: 有些版有進版動畫, 會進入到頁面
+		   but most case is OK!
+*/
+function enteringBoardDataHandler(newdataStr){
+	
+	console.log('enteringBoardDataHandler');
+	if (newdataStr.indexOf("按任意鍵繼續") != -1){
+	
+		sendCommand( Enter );
+		console.log("[32m已按任意見繼續 進入看板[m");
+	
+	}
+	else{ 
+		
+		sendCommand( CtrlL );
+		g_workingState = State_LoadNextPttbotComand;
+		
+	}	
+}
+
+function where(screenData){
+
+	/**FIXME**/
+	var screenStr = iconv.decode(iconv.encode(screenData,'big5'),'big5');
 	if (screenStr.indexOf("主功能表") != -1){
 		return Main;
 	}
@@ -529,38 +550,5 @@ function ReturningMainDataHandler(newdataStr){
 		console.log("Error: where can't find where you are.");
 		return false;
 	}
-	*/
-	if (newdataStr.indexOf("文章選讀") != -1 && newdataStr.indexOf("進板畫面") != -1){
-		//執行回去的指令
-		sendCommand( Left );//應該使用CtrlZ較佳
-		console.log("[32m 已按Left返回 [m");
 	
-	}
-	else{
-		//已回主功能表
-		g_workingState = State_LoadNextPttbotComand;
-		sendCommand( CtrlL );//for emit next command
-		
-	}
-}	
-
-/*
-	FixME: 有些版有進版動畫, 會進入到頁面
-		   but most case is OK!
-*/
-function enteringBoardDataHandler(newdataStr){
-	
-	console.log('enteringBoardDataHandler');
-	if (newdataStr.indexOf("按任意鍵繼續") != -1){
-	
-		sendCommand( Enter );
-		console.log("[32m已按任意見繼續 進入看板[m");
-	
-	}
-	else{ 
-		
-		sendCommand( CtrlL );
-		g_workingState = State_LoadNextPttbotComand;
-		
-	}	
 }

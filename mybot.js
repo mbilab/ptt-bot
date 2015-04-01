@@ -33,10 +33,14 @@ fs.readFile('myID.txt',{encoding:'utf-8'}, function (err, data) {
 			if (err) throw err;
 			console.log('toBoard is saved!');
 		});
-		console.log(myBot.where());
+	});
+	
+	myBot.sendRight(function(){
+		console.log(myBot.getScreen());
 	});
 	
 	myBot.returnMain();
+	
 	myBot.sendRight(function(){
 		console.log(myBot.getScreen());
 	});
