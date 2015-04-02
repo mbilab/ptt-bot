@@ -273,6 +273,12 @@ function fetchArticleList_inArr(){
 	return outputArr;
 
 }
+function addCallbackWithNullCommand(callback){
+	
+	g_commandsObj.PttCommands.push(CtrlL);//CtrlL is useless in here. Not for ask for reload screen data.
+	g_commandsObj.callbacks.push((callback ? callback : function(){}));	
+
+}
 
 
 
@@ -299,6 +305,8 @@ exports.fetchBoardHeader = fetchBoardHeader;
 exports.fetchArticleList = fetchArticleList;
 exports.fetchArticleList_inArr = fetchArticleList_inArr;
 exports.fetchArticle = fetchArticle;
+exports.addCallbackWithNullCommand = addCallbackWithNullCommand;
+
 
 /*****
 	private function
@@ -388,12 +396,6 @@ function addCommands(command,callback){
 	function.
 	
 */
-function addCallbackWithNullCommand(callback){
-	
-	g_commandsObj.PttCommands.push(CtrlL);//CtrlL is useless in here. Not for ask for reload screen data.
-	g_commandsObj.callbacks.push((callback ? callback : function(){}));	
-
-}
 
 function decode_asBig5(data){
 

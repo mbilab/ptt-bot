@@ -6,6 +6,9 @@ var S = require('string');
 //login
 fs.readFile('myID.txt',{encoding:'utf-8'}, function (err, data) {
 	
+	var articleArr = [];
+	
+	
 	if (err) throw err;
 	id = S(data).between("ID:'","'").s;
 	ps = S(data).between("PS:'","'").s;
@@ -40,27 +43,38 @@ fs.readFile('myID.txt',{encoding:'utf-8'}, function (err, data) {
 	
 	
 	
+	for(var i = 0 ; i < 5 ; i++){
 	
-	for(var i = 53615 ; i < 53620 ; i++){
-	
-		myBot.toArticle(i,function(){ //or myBot.sendRight()
+		myBot.toArticle(i+53625,function(){ //or myBot.sendRight()
 			
-			console.log(myBot.getScreen());
+			//console.log(myBot.getScreen());
 		
 		});
 	
 		myBot.fetchArticle(function(){
 		
-			console.log(myBot.getArticle());
+			//console.log(myBot.getArticle());
 			//FIXME: i doesnt change
-			fs.writeFile('C:/Users/user/Google 雲端硬碟/movieBoardData/movieArticle' + i + '.txt', iconv.encode(myBot.getArticle(),'big5'), function (err) {
+			articleArr[i] = myBot.getArticle();
+		
+		});
+	}
+	
+	myBot.addCallbackWithNullCommand(function(){
+			
+		console.log(articleArr);
+		
+		for(var a=0  ; a < 5 ; a++){
+			
+			fs.writeFile('C:/Users/user/Google 雲端硬碟/movieBoardData/movieArticle' + a + '.txt', iconv.encode(articleArr[a],'big5'), function (err) {
 				if (err) throw err;
 				console.log('Article is saved!');
 			});
-		
-		});
+			
+		}
+			
+	});
 	
-	}
 	
 });
 
