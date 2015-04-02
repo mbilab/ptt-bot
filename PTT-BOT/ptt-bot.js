@@ -51,7 +51,7 @@ var g_conn ;//connecton to ptt-sever
 var g_screenBuf = 'wait...';//mimic screen of terminal
 var g_screenBufRow = [];
 var g_articleBuf = '';
-var g_new_data = '';
+var g_newData = '';
 var g_workingState = State_ExcutingLogin;
 var g_commandsObj = {
 	PttCommands: [],
@@ -88,14 +88,14 @@ function login(id, ps, callback){
 	
 	g_conn.addListener('data', function(data){
 
-		g_new_data += iconv.decode(data,'big5');
+		g_newData += iconv.decode(data,'big5');
 
 	});
 	
 	g_conn.addListener('timeout', function(){
 		
-		var newdataStr = g_new_data;
-
+		var newdataStr = g_newData;
+		
 		switch( g_workingState ){		
 			case State_ExcutingLogin:
 				loginDataHandler(newdataStr, id, ps);
@@ -113,10 +113,12 @@ function login(id, ps, callback){
 				break;
 			
 			case State_CollectingArticle:
+				console.log('收集文章中.....');
 				g_screenBuf = screen.parseNewdata(g_cursor,newdataStr);	
-				collectArticle(); 
+				collectArticle(newdataStr); 
 				moveToNextPage();
 				break;
+				
 				
 			case State_ReturningToMain:
 				g_screenBuf = screen.parseNewdata(g_cursor,newdataStr);
@@ -129,7 +131,7 @@ function login(id, ps, callback){
 		
 		}
 		
-		g_new_data = '' ;		
+		g_newData = '' ;		
 		
 	});
 	
@@ -341,28 +343,36 @@ function moveToNextPage(){
 
 }
 
-function collectArticle(){
-
-	var row = S(g_screenBuf).between(ArticleIndexStart,ArticleIndexEnd).replaceAll(' ', '"').replaceAll('~', '","').s; 
-	var rowStart = parseInt(S(row).parseCSV()[0]==1 ? 0 : S(row).parseCSV()[0]);
-	var rowEnd = parseInt(S(row).parseCSV()[1]);	
-	var articleRow = S(g_articleBuf).lines();
-	var newArticleRow = S(g_screenBuf).lines().slice(1);
+function collectArticle(screenData){
+		
+	if( where(screenData) == Article){	
 	
-	for(var _=rowStart;_<=rowEnd;_++){
-		articleRow[_] = newArticleRow[_-rowStart];
+		var row = S(g_screenBuf).between(ArticleIndexStart,ArticleIndexEnd).replaceAll(' ', '"').replaceAll('~', '","').s; 
+		var rowStart = parseInt(S(row).parseCSV()[0]==1 ? 0 : S(row).parseCSV()[0]);
+		var rowEnd = parseInt(S(row).parseCSV()[1]);	
+		var articleRow = S(g_articleBuf).lines();
+		var newArticleRow = S(g_screenBuf).lines().slice(1);
+	
+		for(var _=rowStart;_<=rowEnd;_++){
+			articleRow[_] = newArticleRow[_-rowStart];
+		}
+	
+		clearArticleBuf();
+	
+		for(var _ = -1, n = articleRow.length; ++_ < n ;){
+			g_articleBuf += articleRow[_] + '\r\n';
+		}
+	
+		if(S(g_screenBuf).between(ArticlePercentStart,ArticlePercentEnd).s == '100'){
+			g_workingState = State_LoadNextPttbotComand;
+		}
+		
 	}
+	else{
 	
-	g_articleBuf = '';
-	
-	for(var _ = -1, n = articleRow.length; ++_ < n ;){
-		g_articleBuf += articleRow[_] + '\r\n';
-	}
-	
-	if(S(g_screenBuf).between(ArticlePercentStart,ArticlePercentEnd).s == '100'){
 		g_workingState = State_LoadNextPttbotComand;
-	}
 	
+	}
 }
 
 function addCommands(command,callback){

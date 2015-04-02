@@ -28,9 +28,11 @@ function parseNewdata(g_cursor,newdataStr){
 	}
 	
 	for(var _ = -1, n = len ; ++_ < n ;){
+			
 			ch = newdataStr.slice(0, 1);
 			newdataStr = newdataStr.slice(1);	
-		
+			
+			
 			if(Ansi.state){//in ANSI state
 			
 				Ansi.str += ch;
@@ -44,10 +46,17 @@ function parseNewdata(g_cursor,newdataStr){
 						break;
 					
 					case 'K':
-						ScreenRow[g_cursor.row] = addAnsiEOLSeq(ScreenRow[g_cursor.row],g_cursor.col,Ansi.str);
-						Ansi.state = false;
-						Ansi.str = 'no-ansi';
-						break;
+						if( g_cursor.row != 25 ){ /* fix for some article EX: screen_data/CollectingArticle53617 */
+							ScreenRow[g_cursor.row] = addAnsiEOLSeq(ScreenRow[g_cursor.row],g_cursor.col,Ansi.str);
+							Ansi.state = false;
+							Ansi.str = 'no-ansi';
+							break;
+						}
+						else{
+							//Ansi.state = false;
+							//Ansi.str = 'no-ansi';
+							break;
+						}
 					
 					case 'H':
 						/**
