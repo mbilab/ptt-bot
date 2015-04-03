@@ -62,6 +62,7 @@ var g_cursor = {
 	col: 1
 }
 
+
 /*****
 	public function
 *****/
@@ -69,14 +70,14 @@ function login(id, ps, callback){
 
 	g_conn = net.createConnection(23, 'ptt.cc');
 	
-	g_conn.setTimeout(1000);
+	g_conn.setTimeout(700);
 	
 	g_commandsObj.callbacks.push((callback ? callback : function(){}));	
 	
 	//Listeners
 	g_conn.addListener('connect', function(){
 	
-		console.log('[1;31mconnected to ptt-sever[m');
+		console.log('[1;31mConnected to ptt-sever[m');
 
 	});
 	
@@ -116,7 +117,7 @@ function login(id, ps, callback){
 				console.log('收集文章中.....');
 				g_screenBuf = screen.parseNewdata(g_cursor,newdataStr);	
 				collectArticle(newdataStr); 
-				moveToNextPage();
+				moveToNextPage(newdataStr);
 				break;
 				
 				
@@ -309,6 +310,52 @@ exports.addCallbackWithNullCommand = addCallbackWithNullCommand;
 
 
 /*****
+	Applied-method
+*****/
+function collectArticleFrom(boardName,startIndex,totalAmount,targetDic){
+	
+	var bot = this;
+	
+	bot.toBoard(boardName,function(){
+		
+		console.log('已進入'+boardName+'板，接著收集文章!');
+		
+	});
+	
+	i = startIndex;
+	
+	for( var _=0;_<totalAmount;_++ ){
+		
+		bot.toArticle(_+i,function(){ 
+			
+			console.log('進入'+i+'文章中');
+			
+		});
+	
+		bot.fetchArticle(function(){
+		
+			fs.writeFile(targetDic+'/'+boardName+i+'.txt', iconv.encode( bot.getArticle(),'big5' ), function (err) {
+				
+				if (err) throw err;
+				console.log(boardName+'Article'+i+' is saved!');
+				i++;
+				
+			});
+			
+		});
+		
+	}
+
+}
+
+
+/*
+	export Applied function
+*/
+exports.collectArticleFrom = collectArticleFrom;
+
+
+/*****
 	private function
 *****/
 
@@ -336,10 +383,21 @@ function loadNextCommand(){
 	
 }
 
-function moveToNextPage(){
+function moveToNextPage(screenData){
 
-	if(g_workingState==State_CollectingArticle) {
+	if( g_workingState==State_CollectingArticle ) { /* 下一頁 */
+	
 		sendCommand(Right+CtrlL);
+	
+	}
+	
+	else if( where(screenData) == ArticleList ){ /* 有時候文章被刪除會回到文章列表 */
+	
+		console.log("該篇文章已被刪除!");
+		executeCallback();
+		loadNextCommand();
+		clearArticleBuf();
+		
 	}
 	
 	else{
@@ -353,6 +411,7 @@ function moveToNextPage(){
 
 function collectArticle(screenData){
 		
+	//console.log(screenData);	
 	if( where(screenData) == Article){	
 	
 		var row = S(g_screenBuf).between(ArticleIndexStart,ArticleIndexEnd).replaceAll(' ', '"').replaceAll('~', '","').s; 
@@ -527,11 +586,11 @@ function where(screenData){
 		return Main;
 	}
 	
-	else if(screenStr.indexOf("文章選讀") != -1 && screenStr.indexOf("進板畫面") != -1){
+	else if(screenStr.indexOf("[←]離開 [→]閱讀 [Ctrl-P]發表文章 [d]刪除 [z]精華區 [i]看板資訊/設定 [h]說明") != -1){
 		return ArticleList;
 	}
 	
-	else if(screenStr.indexOf("目前顯示") != -1 && screenStr.indexOf("瀏覽 第") != -1){
+	else if(screenStr.indexOf("回應[31m(X%)[30m推文[31m(h)[30m說明[31m(←)[30m離開") != -1){
 		return Article;
 	}
 	
@@ -553,6 +612,14 @@ function where(screenData){
 	
 	else{
 		console.log("Error: where can't find where you are.");
+		/* 
+		fs.writeFile('C:/Users/user/Google 雲端硬碟/movieBoardData/cannot.txt', iconv.encode(screenStr,'big5'), function (err) {
+				
+			if (err) throw err;
+			console.log(' is saved!');
+				
+		});
+		*/
 		return false;
 	} 
 	
