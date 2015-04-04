@@ -8,9 +8,9 @@ var screen = require('./screen');
 /** Regular Expression && Pattern **/
 const AnsiSetDisplayAttr = /\[(\d+)*;*(\d+)*;*(\d+)*;*(\d+)*[mHK]/g ;
 const ArticleListStart = /\s人氣:[0-9]{1,5}\s/ ;
-const ArticleListEnd = "[34;46m 文章選讀" ;
-const AnsiEraseEOL = /\[K/g ;
 const AnsiCursorHome = /\[(\d+)*;*(\d+)*H/g
+const AnsiEraseEOL = /\[K/g ;
+const ArticleListEnd = "[34;46m 文章選讀" ;
 const ArticleIndexStart = "[1;30;47m 目前顯示: 第";
 const ArticleIndexEnd = "行[";
 const ArticlePercentStart = " 頁 (";
@@ -70,7 +70,7 @@ function login(id, ps, callback){
 
 	g_conn = net.createConnection(23, 'ptt.cc');
 	
-	g_conn.setTimeout(700);
+	g_conn.setTimeout(1000);
 	
 	g_commandsObj.callbacks.push((callback ? callback : function(){}));	
 	
@@ -312,7 +312,7 @@ exports.addCallbackWithNullCommand = addCallbackWithNullCommand;
 /*****
 	Applied-method
 *****/
-function collectArticleFrom(boardName,startIndex,totalAmount,targetDic){
+function collectArticleFromBoard(boardName,startIndex,totalAmount,targetDic){
 	
 	var bot = this;
 	
@@ -322,23 +322,23 @@ function collectArticleFrom(boardName,startIndex,totalAmount,targetDic){
 		
 	});
 	
-	i = startIndex;
+	_indexForArticle = startIndex; //global
 	
 	for( var _=0;_<totalAmount;_++ ){
 		
-		bot.toArticle(_+i,function(){ 
+		bot.toArticle(_+_indexForArticle,function(){ 
 			
-			console.log('進入'+i+'文章中');
+			console.log('進入'+_indexForArticle+'文章中');
 			
 		});
 	
 		bot.fetchArticle(function(){
 		
-			fs.writeFile(targetDic+'/'+boardName+i+'.txt', iconv.encode( bot.getArticle(),'big5' ), function (err) {
+			fs.writeFile(targetDic+'/'+boardName+_indexForArticle+'.txt', iconv.encode( bot.getArticle(),'big5' ), function (err) {
 				
 				if (err) throw err;
-				console.log(boardName+'Article'+i+' is saved!');
-				i++;
+				console.log(boardName+_indexForArticle+' 已經被儲存囉!');
+				_indexForArticle++;
 				
 			});
 			
@@ -348,12 +348,47 @@ function collectArticleFrom(boardName,startIndex,totalAmount,targetDic){
 
 }
 
+function collectArticleFromBoardWithoutANSI(boardName,startIndex,totalAmount,targetDic){
+	
+	var bot = this;
+	
+	bot.toBoard(boardName,function(){
+		
+		console.log('已進入'+boardName+'板，接著收集文章!');
+		
+	});
+	
+	_indexForArticle = startIndex; //global
+	
+	for( var _=0;_<totalAmount;_++ ){
+		
+		bot.toArticle(_+_indexForArticle,function(){ 
+			
+			console.log('進入'+_indexForArticle+'文章中');
+			
+		});
+	
+		bot.fetchArticle(function(){
+		
+			fs.writeFile(targetDic+'/'+boardName+_indexForArticle+'_withoutANSI.txt', iconv.encode( escapeANSI( bot.getArticle() ),'big5' ), function (err) {
+				
+				if (err) throw err;
+				console.log(boardName+_indexForArticle+' 已經被儲存囉!');
+				_indexForArticle++;
+				
+			});
+			
+		});
+		
+	}
+
+}
 
 /*
 	export Applied function
 */
-exports.collectArticleFrom = collectArticleFrom;
-
+exports.collectArticleFromBoard = collectArticleFromBoard;
+exports.collectArticleFromBoardWithoutANSI = collectArticleFromBoardWithoutANSI;
 
 /*****
 	private function
@@ -590,7 +625,7 @@ function where(screenData){
 		return ArticleList;
 	}
 	
-	else if(screenStr.indexOf("回應[31m(X%)[30m推文[31m(h)[30m說明[31m(←)[30m離開") != -1){
+	else if(screenStr.indexOf("[1;30;47m 目前顯示: 第") != -1 && screenStr.indexOf("(y)[30m回應") != -1){
 		return Article;
 	}
 	
@@ -611,8 +646,9 @@ function where(screenData){
 	}
 	
 	else{
-		console.log("Error: where can't find where you are.");
-		/* 
+		console.log("Warning: where() can't find where you are.");
+		console.log(screenStr);
+		/*
 		fs.writeFile('C:/Users/user/Google 雲端硬碟/movieBoardData/cannot.txt', iconv.encode(screenStr,'big5'), function (err) {
 				
 			if (err) throw err;

@@ -84,7 +84,7 @@ function parseNewdata(g_cursor,newdataStr){
 						if(S(Ansi.str).contains('[2J')){
 							ScreenRow = [' null_row;'].concat(S(nullScreen).lines()); //Clear entire screen
 						}else{
-							console.log('got undefined ANSI-pattern for J');
+							console.log('Warning: parseNewdata() got undefined ANSI-pattern for J');
 						}
 						Ansi.state = false;
 						Ansi.str = 'no-ansi';
@@ -92,7 +92,7 @@ function parseNewdata(g_cursor,newdataStr){
 						
 					default: 
 						//do nothing
-						if(Ansi.str.length>25) console.log('got undefined ANSI-pattern');//alert if no ANSI-pattern matches.
+						if(Ansi.str.length>25) console.log('Warning: parseNewdata() got undefined ANSI-pattern');//alert if no ANSI-pattern matches.
 				}				
 			}
 			
