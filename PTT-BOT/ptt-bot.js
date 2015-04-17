@@ -1,149 +1,227 @@
-/** node modulus **/
-var net = require('net');
-var iconv = require('iconv-lite'); 
-var S = require('string');
-var fs = require('fs');
-var screen = require('./screen');
+	/**
+	* package    
+	* author     chenchen Chang <bird11419@yahoo.com.tw>
+	* license   
+	* copyright  
+	* version    0.0.1
+	* link       https://github.com/mbilab/ptt-bot
+	*/
+ 
+	/**
+	  * node modulus
+	  */
+	var net = require('net');
+	var iconv = require('iconv-lite'); 
+	var S = require('string');
+	var fs = require('fs');
+	var screen = require('./screen');
 
-/** Regular Expression && Pattern **/
-const AnsiSetDisplayAttr = /\[(\d+)*;*(\d+)*;*(\d+)*;*(\d+)*[mHK]/g ;
-const ArticleListStart = /\s人氣:[0-9]{1,5}\s/ ;
-const AnsiCursorHome = /\[(\d+)*;*(\d+)*H/g
-const AnsiEraseEOL = /\[K/g ;
-const ArticleListEnd = "[34;46m 文章選讀" ;
-const ArticleIndexStart = "[1;30;47m 目前顯示: 第";
-const ArticleIndexEnd = "行[";
-const ArticlePercentStart = " 頁 (";
-const ArticlePercentEnd = "%) [1;30;47m";
+	/**
+	  * Regular Expression && Pattern
+	  */
+	const AnsiSetDisplayAttr = /\[(\d+)*;*(\d+)*;*(\d+)*;*(\d+)*[mHK]/g ;
+	const ArticleListStart = /\s人氣:[0-9]{1,5}\s/ ;
+	const AnsiCursorHome = /\[(\d+)*;*(\d+)*H/g
+	const AnsiEraseEOL = /\[K/g ;
+	const ArticleListEnd = "[34;46m 文章選讀" ;
+	const ArticleIndexStart = "[1;30;47m 目前顯示: 第";
+	const ArticleIndexEnd = "行[";
+	const ArticlePercentStart = " 頁 (";
+	const ArticlePercentEnd = "%) [1;30;47m";
 
-/** Telnet Keyboard Equivalents **/
-const Enter = '\r';
-const Left = '\u001b[D';
-const Right = '\u001b[C';
-const Up = '\u001b[A';
-const Down = '\u001b[B';
-const PageUp = 'P';
-const PageDown = 'N';
-const CtrlL = '\u000c';
-const CtrlZ = '\u001a';
+	/**
+	  * Telnet Keyboard Equivalents
+	  */
+	const Enter = '\r';
+	const PageUp = 'P';
+	const PageDown = 'N';
+	const Left = '\u001b[D';
+	const Right = '\u001b[C';
+	const Up = '\u001b[A';
+	const Down = '\u001b[B';
+	const CtrlL = '\u000c';
+	const CtrlZ = '\u001a';
 
-/** Screens **/
-const Main = 0; //【主功能表】
-const HotBoard = 1; //【熱門看板列表】
-const FavBoard = 2; //【我的最愛看板列表】
-const BoardClass = 3; //【分類看板】
-const BoardList = 4; //【看板列表】
-const ArticleList = 5; //【文章列表】
-const Article = 6; //【文章內】
-
-/** Working State **/
-const State_ExcutingLogin = 0;
-const State_LoadNextPttbotComand = 1;
-const State_EnteringBoard = 2;
-const State_CollectingArticle = 3;
-const State_ReturningToMain = 4;
-
-
-/** para @ global screen **/
-const nullScreen = '\r\n\r\n\r\n\r\n\r\n\r\n\r\n\r\n\r\n\r\n\r\n\r\n\r\n\r\n\r\n\r\n\r\n\r\n\r\n\r\n\r\n\r\n\r\n';
-const nullScreenRow = [' null_row;'].concat(S(nullScreen).lines());
-var g_conn ;//connecton to ptt-sever
-var g_screenBuf = 'wait...';//mimic screen of terminal
-var g_screenBufRow = [];
-var g_articleBuf = '';
-var g_newData = '';
-var g_workingState = State_ExcutingLogin;
-var g_commandsObj = {
-	PttCommands: [],
-	callbacks: []
-}
-var g_cursor = {
-	row: 1,
-	col: 1
-}
-
-
-/*****
-	public function
-*****/
-function login(id, ps, callback){
-
-	g_conn = net.createConnection(23, 'ptt.cc');
+	/**
+	  * Screens serial number
+	  */
+	const Main = 0; //【主功能表】
+	const HotBoard = 1; //【熱門看板列表】
+	const FavBoard = 2; //【我的最愛看板列表】
+	const BoardClass = 3; //【分類看板】
+	const BoardList = 4; //【看板列表】
+	const ArticleList = 5; //【文章列表】
+	const Article = 6; //【文章內】
 	
-	g_conn.setTimeout(2000);
+	/**
+	  * Working State serial number
+	  */
+	const State_ExcutingLogin = 0;
+	const State_LoadNextPttbotComand = 1;
+	const State_EnteringBoard = 2;
+	const State_CollectingArticle = 3;
+	const State_ReturningtoMain = 4;
 	
-	g_commandsObj.callbacks.push((callback ? callback : function(){}));	
-	
-	//Listeners
-	g_conn.addListener('connect', function(){
-	
-		console.log('[1;31mConnected to ptt-sever[m');
+    /**
+	  * mimic null screen in BBS
+	  * type string
+	  */
+	const nullScreen = '\r\n\r\n\r\n\r\n\r\n\r\n\r\n\r\n\r\n\r\n\r\n\r\n\r\n\r\n\r\n\r\n\r\n\r\n\r\n\r\n\r\n\r\n\r\n';
 
-	});
-	
-	g_conn.addListener('end',function(){
-	
-		console.log("[1;31mDisconnected...![m");
-	
-	});
-	
-	g_conn.addListener('data', function(data){
+	/**
+	  * mimic null screen in BBS
+	  * type array
+	  */
+	const nullScreenRow = [' null_row;'].concat(S(nullScreen).lines());
 
-		g_newData += iconv.decode(data,'big5');
+	/**
+	  * connection to PTT sever
+	  * type object
+	  */
+	var g_conn ;
 
-	});
+	/**
+	  * buffer for screen data
+	  * type string
+	  */
+	var g_screenBuf = 'wait...';
+
+	/**
+	  * buffer for screen data
+	  * type array
+	  */
+	var g_screenBufRow = [];
+
+	/**
+	  * buffer for collected article data
+	  * type string
+	  */
+	var g_articleBuf = '';
+
+	/**
+	  * buffer for new coming data
+	  * type string
+	  */
+	var g_newData = '';
+
+	/**
+	  * current working state
+	  * type Working State serial number
+	  */
+	var g_workingState = State_ExcutingLogin;
+
+	/**
+	  * commands stack
+	  * type object
+	  */
+	var g_commandsObj = {
 	
-	g_conn.addListener('timeout', function(){
+		PttCommands: [],
+		callbacks: []
+
+	}
+
+	/**
+	  * current cursor
+	  * type object
+	  */
+	var g_cursor = {
 		
-		var newdataStr = g_newData;
+		row: 1,
+		col: 1
+
+	}
+
+
+	/*****
+		public function
+	*****/
+	
+	/**
+     * Create connection with PTT sever
+     * param  string id         	 user id for login to PTT sever
+	 * param  string ps         	 user password for login to PTT sever
+	 * param  function callback      function that is executed after login to PTT sever 
+     * return object                 the connection between client and sever
+     */
+	function login(id, ps, callback){
+
+		g_conn = net.createConnection(23, 'ptt.cc');
 		
-		switch( g_workingState ){		
-			case State_ExcutingLogin:
-				loginDataHandler(newdataStr, id, ps);
-				break;
+		g_conn.setTimeout(2000);
+	
+		g_commandsObj.callbacks.push((callback ? callback : function(){}));	
+	
+		//Listeners
+		g_conn.addListener('connect', function(){
+	
+			console.log('[1;31mConnected to ptt-sever[m');
+
+		});
+	
+		g_conn.addListener('end',function(){
+	
+			console.log("[1;31mDisconnected...![m");
+	
+		});
+	
+		g_conn.addListener('data', function(data){
+
+			g_newData += iconv.decode(data,'big5');
+	
+		});
+		
+		g_conn.addListener('timeout', function(){
+		
+			var newdataStr = g_newData;
+		
+			switch( g_workingState ){		
+				case State_ExcutingLogin:
+					loginDataHandler(newdataStr, id, ps);
+					break;
 				
-			case State_LoadNextPttbotComand:
-				g_screenBuf = screen.parseNewdata(g_cursor,newdataStr);
-				executeCallback();
-				clearSceenBuf();
-				loadNextCommand();
-				break;
+				case State_LoadNextPttbotComand:
+					g_screenBuf = screen.parseNewdata(g_cursor,newdataStr);
+					executeCallback();
+					clearSceenBuf();
+					loadNextCommand();
+					break;
 				
-			case State_EnteringBoard:
-				enteringBoardDataHandler(newdataStr);
-				break;
+				case State_EnteringBoard:
+					enteringBoardDataHandler(newdataStr);
+					break;
 			
-			case State_CollectingArticle:
-				console.log('收集文章中.....');
-				g_screenBuf = screen.parseNewdata(g_cursor,newdataStr);	
-				collectArticle(newdataStr); 
-				moveToNextPage(newdataStr);
-				break;
+				case State_CollectingArticle:
+					console.log('收集文章中.....');
+					g_screenBuf = screen.parseNewdata(g_cursor,newdataStr);	
+					collectArticle(newdataStr); 
+					moveToNextPage(newdataStr);
+					break;
 				
 				
-			case State_ReturningToMain:
-				g_screenBuf = screen.parseNewdata(g_cursor,newdataStr);
-				clearSceenBuf();
-				ReturningMainDataHandler(newdataStr);
-				break;
+				case State_ReturningtoMain:
+					g_screenBuf = screen.parseNewdata(g_cursor,newdataStr);
+					clearSceenBuf();
+					ReturningMainDataHandler(newdataStr);
+					break;
 				
-			default :
-				console.log('working state is undifined.');
+				default :
+					console.log('working state is undifined.');
 		
-		}
+			}
 		
-		g_newData = '' ;		
+			g_newData = '' ;		
 		
-	});
+		});
 	
-	return g_conn;
-}
+		return g_conn;
+	}
 
 
-function returnMain( callback ){
+function toMain( callback ){
 	
 	addCallbackWithNullCommand(function(){ /* 在傳送指令前, 先將ptt-bot的狀態改變 */
-		g_workingState = State_ReturningToMain;
+		g_workingState = State_ReturningtoMain;
 		clearScreenBufRow();//clean old data, since g_screenBufRow is not used until nextPttComand. 
 	});
 	addCommands(CtrlL,function(){
@@ -170,7 +248,7 @@ function toArticle(NumStr,callback){
 
 }
 
-function fetchArticle(callback){
+function loadArticle(callback){
 	
 	addCallbackWithNullCommand(function(){ 
 		g_workingState = State_CollectingArticle;
@@ -198,7 +276,7 @@ function escapeANSI(str){
 
 }
 
-function pressAnyKey(callback){
+function sendPressAnyKey(callback){
 
 	addCommands(Enter,callback);
 
@@ -234,46 +312,6 @@ function sendRight(callback){
 
 }
 
-function MaintoFavBoard(callback){
-
-	/**FIXME**/
-	var command = 'f\r';
-	addCommands(command,callback);
-
-}
-
-function MaintoHotBoard(){
-
-	/**FIXME**/
-	sendCommand( 'c' );
-	sendCommand( '\r' );
-	sendCommand( 'p' );
-	sendCommand( '\r' );	
-
-}
-
-function fetchBoardHeader(){
-
-	var output = S(g_screenBuf).between('[33m', '[0;1;37;44m').s; 		
-	return output;
-
-}
-
-function fetchArticleList(){
-
-	var output = S(g_screenBuf).between(ArticleListStart.exec(g_screenBuf)[0],ArticleListEnd).s ;	
-	return output;
-
-}
-
-function fetchArticleList_inArr(){
-
-	var outputArr = S( S(g_screenBuf).between(ArticleListStart.exec(g_screenBuf)[0],ArticleListEnd).s ).lines();
-	outputArr.shift();
-	outputArr.pop();
-	return outputArr;
-
-}
 function addCallbackWithNullCommand(callback){
 	
 	g_commandsObj.PttCommands.push(CtrlL);//CtrlL is useless in here. Not for ask for reload screen data.
@@ -281,32 +319,51 @@ function addCallbackWithNullCommand(callback){
 
 }
 
-
-
 /*
-	export public function
+
+function toFavBoard(callback){
+
+	//FIXME
+	var command = 'f\r';
+	addCommands(command,callback);
+
+}
+
+
+function toHotBoard(){
+
+	//FIXME
+	sendCommand( 'c' );
+	sendCommand( '\r' );
+	sendCommand( 'p' );
+	sendCommand( '\r' );	
+
+}
 */
+
+
+/*****
+	export public function
+*****/
 exports.login = login;
 exports.getScreen = getScreen;
 exports.getArticle = getArticle;
-exports.pressAnyKey = pressAnyKey;
 exports.escapeANSI = escapeANSI;
-exports.returnMain = returnMain;
-exports.toBoard = toBoard;
+exports.execFuntion = addCallbackWithNullCommand;
+
+exports.toMain = toMain;
 exports.toArticle = toArticle;
+exports.toBoard = toBoard;
 exports.toArticlesList = toBoard;
+//exports.toFavBoard = toFavBoard;
+//exports.toHotBoard = toHotBoard;
+
 exports.sendCtrlL = sendCtrlL;
 exports.sendPageUp = sendPageUp;
 exports.sendPageDown = sendPageDown;
 exports.sendLeft = sendLeft;
 exports.sendRight = sendRight;
-exports.MaintoFavBoard = MaintoFavBoard;
-exports.MaintoHotBoard = MaintoHotBoard;
-exports.fetchBoardHeader = fetchBoardHeader;
-exports.fetchArticleList = fetchArticleList;
-exports.fetchArticleList_inArr = fetchArticleList_inArr;
-exports.fetchArticle = fetchArticle;
-exports.addCallbackWithNullCommand = addCallbackWithNullCommand;
+exports.sendPressAnyKey = sendPressAnyKey;
 
 
 /*****
@@ -332,7 +389,7 @@ function collectArticleFromBoard(boardName,startIndex,totalAmount,targetDic){
 			
 		});
 	
-		bot.fetchArticle(function(){
+		bot.loadArticle(function(){
 		
 			fs.writeFile(targetDic+'/'+boardName+_indexForArticle+'.txt', iconv.encode( bot.getArticle(),'big5' ), function (err) {
 				
@@ -368,7 +425,7 @@ function collectArticleFromBoardWithoutANSI(boardName,startIndex,totalAmount,tar
 			
 		});
 	
-		bot.fetchArticle(function(){
+		bot.loadArticle(function(){
 		
 			fs.writeFile(targetDic+'/'+boardName+_indexForArticle+'_withoutANSI.txt', iconv.encode( escapeANSI( bot.getArticle() ),'big5' ), function (err) {
 				
@@ -384,11 +441,12 @@ function collectArticleFromBoardWithoutANSI(boardName,startIndex,totalAmount,tar
 
 }
 
-/*
+/*****
 	export Applied function
-*/
+*****/
 exports.collectArticleFromBoard = collectArticleFromBoard;
 exports.collectArticleFromBoardWithoutANSI = collectArticleFromBoardWithoutANSI;
+
 
 /*****
 	private function
