@@ -18,7 +18,7 @@ fs.readFile('myID.txt',{encoding:'utf-8'}, function (err, data) {
 	});
 	
 
-	myBot.collectArticleFromBoardWithoutANSI('gossiping',161218,1000,'C:/Users/user/Google 雲端硬碟/movieBoardData/gossipingWithoutANSI');
+	myBot.collectArticleFromBoardWithoutANSI('MobileComm',48927,1000,'C:/Users/user/Google 雲端硬碟/movieBoardData/MobileCommWithoutANSI');
 	myBot.returnMain(function(){//FIXME: callback 沒被執行
 		console.log( myBot.getScreen() );
 	});
@@ -28,35 +28,6 @@ fs.readFile('myID.txt',{encoding:'utf-8'}, function (err, data) {
 	myBot.returnMain(function(){//FIXME: callback 沒被執行
 		console.log( myBot.getScreen() );
 	});
-	myBot.collectArticleFromBoardWithoutANSI('movie',53005,100,'C:/Users/user/Google 雲端硬碟/movieBoardData/movieWithoutANSI');
-	myBot.returnMain(function(){//FIXME: callback 沒被執行
-		console.log( myBot.getScreen() );
-	});
-	myBot.collectArticleFromBoardWithoutANSI('movie',53105,100,'C:/Users/user/Google 雲端硬碟/movieBoardData/movieWithoutANSI');
-	myBot.returnMain(function(){//FIXME: callback 沒被執行
-		console.log( myBot.getScreen() );
-	});
-	myBot.collectArticleFromBoardWithoutANSI('movie',53205,100,'C:/Users/user/Google 雲端硬碟/movieBoardData/movieWithoutANSI');
-	myBot.returnMain(function(){//FIXME: callback 沒被執行
-		console.log( myBot.getScreen() );
-	});
-	myBot.collectArticleFromBoardWithoutANSI('movie',53305,100,'C:/Users/user/Google 雲端硬碟/movieBoardData/movieWithoutANSI');
-	myBot.returnMain(function(){//FIXME: callback 沒被執行
-		console.log( myBot.getScreen() );
-	});
-	myBot.collectArticleFromBoardWithoutANSI('movie',53405,100,'C:/Users/user/Google 雲端硬碟/movieBoardData/movieWithoutANSI');
-	myBot.returnMain(function(){//FIXME: callback 沒被執行
-		console.log( myBot.getScreen() );
-	});
-	myBot.collectArticleFromBoardWithoutANSI('movie',53505,100,'C:/Users/user/Google 雲端硬碟/movieBoardData/movieWithoutANSI');
-	myBot.returnMain(function(){//FIXME: callback 沒被執行
-		console.log( myBot.getScreen() );
-	});
-	myBot.collectArticleFromBoardWithoutANSI('movie',53605,100,'C:/Users/user/Google 雲端硬碟/movieBoardData/movieWithoutANSI');
-	myBot.returnMain(function(){//FIXME: callback 沒被執行
-		console.log( myBot.getScreen() );
-	});
-	myBot.collectArticleFromBoardWithoutANSI('movie',53705,100,'C:/Users/user/Google 雲端硬碟/movieBoardData/movieWithoutANSI');
 	*/
 });
 

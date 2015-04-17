@@ -70,7 +70,7 @@ function login(id, ps, callback){
 
 	g_conn = net.createConnection(23, 'ptt.cc');
 	
-	g_conn.setTimeout(1000);
+	g_conn.setTimeout(2000);
 	
 	g_commandsObj.callbacks.push((callback ? callback : function(){}));	
 	
@@ -472,6 +472,7 @@ function collectArticle(screenData){
 	}
 	else{
 	
+		console.log(screenData);
 		g_workingState = State_LoadNextPttbotComand;
 	
 	}
@@ -647,7 +648,7 @@ function where(screenData){
 	
 	else{
 		console.log("Warning: where() can't find where you are.");
-		console.log(screenStr);
+		//console.log(screenStr);
 		/*
 		fs.writeFile('C:/Users/user/Google 雲端硬碟/movieBoardData/cannot.txt', iconv.encode(screenStr,'big5'), function (err) {
 				
