@@ -46,7 +46,7 @@ function parseNewdata(g_cursor,newdataStr){
 						break;
 					
 					case 'K':
-						if( g_cursor.row != 25 ){ /* fix for some article EX: screen_data/CollectingArticle53617 */
+						if( g_cursor.row != 25 ){ /* fix for some article EX: document/CollectingArticle53617 */
 							ScreenRow[g_cursor.row] = addAnsiEOLSeq(ScreenRow[g_cursor.row],g_cursor.col,Ansi.str);
 							Ansi.state = false;
 							Ansi.str = 'no-ansi';
