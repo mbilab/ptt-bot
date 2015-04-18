@@ -62,7 +62,7 @@
 	const State_CollectingArticle = 3;
 	const State_ReturningtoMain = 4;
 	
-    /**
+	/**
 	  * mimic null screen in BBS
 	  * type string
 	  */
