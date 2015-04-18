@@ -139,10 +139,10 @@
 	
 	/**
 	 * Create connection with PTT sever
-	 * param	string	id				user id for login to PTT sever
-	 * param	string	ps				user password for login to PTT sever
-	 * param	function	callback		function that is executed after login to PTT sever 
-	 * return object					the connection between client and sever
+	 * param	string	id			user id for login to PTT sever
+	 * param	string	ps			user password for login to PTT sever
+	 * param	function	callback	function that is executed after login to PTT sever 
+	 * return object				the connection between client and sever
 	 */
 	function login(id, ps, callback){
 
