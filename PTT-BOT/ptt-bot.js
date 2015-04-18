@@ -255,8 +255,8 @@
 
 	
 	/**
-	 * Goes into target article "ONLY when bot is in the certain board".
-	 * param	string	NumStr		the serial number of the target article
+	 * Goes into target article ONLY WHEN THE BOT IS IN CERTAIN BOARD.
+	 * param	string	NumStr			the serial number of the target article
 	 * param	function	callback	function that is executed after the bot goes into target article, 
 							use loadArticle() followed by getArticle() to get the full content of target article 
 	 * return	None
