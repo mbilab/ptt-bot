@@ -218,6 +218,11 @@
 	}
 
 
+	/**
+	 * Goes back to main screen wherever the bot is.
+	 * param	function	callback	function that is executed after the bot goes back to main screen
+	 * return	None
+	 */
 function toMain( callback ){
 	
 	addCallbackWithNullCommand(function(){ /* 在傳送指令前, 先將ptt-bot的狀態改變 */
@@ -229,7 +234,12 @@ function toMain( callback ){
 	});
 	
 }
-
+	/**
+	 * Goes to certain board(article list) screen wherever the bot is.
+	 * param	string	BoardName			full board name that bot is eager to enter
+	 * param	function	callback	function that is executed after the bot goes back to main screen
+	 * return	None
+	 */
 function toBoard( BoardName,callback ){
 
 	var command = 's' + BoardName + '\r';
@@ -240,6 +250,7 @@ function toBoard( BoardName,callback ){
 	addCommands(command,callback);
 	
 }
+
 
 function toArticle(NumStr,callback){
 
