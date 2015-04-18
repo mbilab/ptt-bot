@@ -271,7 +271,7 @@
 	
 	/**
 	 * Download the full article, usually followed by getArticle() to get the content.
-	 * param	function	callback	function that is executed after the bot has downloaded the article, 
+	 * param	function	callback	function that is executed after the bot has downloaded the article
 	 * return	None
 	 */
 	function loadArticle(callback){
@@ -296,17 +296,25 @@
 
 	}
 
+	
+	/**
+	 * Get the content of current article, MUST BE USE AS AN FOLLOWER BY loadArticle().
+	 * param	None
+	 * return	string				the full content of current article
+	 */
 	function getArticle(){
 
 		return g_articleBuf;
 
 	}
 
-function escapeANSI(str){
-
-	return	str.replace(AnsiSetDisplayAttr,"");
-
-}
+	
+	
+	function escapeANSI(str){
+	
+		return	str.replace(AnsiSetDisplayAttr,"");
+	
+	}
 
 function sendPressAnyKey(callback){
 
