@@ -234,6 +234,8 @@
 		});
 		
 	}
+	
+	
 	/**
 	 * Goes to certain board(article list) screen wherever the bot is.
 	 * param	string	BoardName		full board name that bot is eager to enter
@@ -251,14 +253,22 @@
 		
 	}
 
+	
+	/**
+	 * Goes into target article "ONLY when bot is in the certain board".
+	 * param	string	NumStr		the serial number of the target article
+	 * param	function	callback	function that is executed after the bot goes into target article, 
+										use getArticle() followed by loadArticle() to get the full content of target article 
+	 * return	None
+	 */
+	function toArticle(NumStr,callback){
 
-function toArticle(NumStr,callback){
+		var command = NumStr+'\r\r';
+		addCommands(command,callback);
 
-	var command = NumStr+'\r\r';
-	addCommands(command,callback);
+	}
 
-}
-
+	
 function loadArticle(callback){
 	
 	addCallbackWithNullCommand(function(){ 
