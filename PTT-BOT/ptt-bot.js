@@ -1,8 +1,8 @@
 	/**
 	* package    
-	* author     chenchen Chang <bird11419@yahoo.com.tw>
-	* version    0.0.1
+	* author     chenchen chang <bird11419@yahoo.com.tw>
 	* link       https://github.com/mbilab/ptt-bot
+	* version    0.0.1
 	* license   
 	* copyright  
 	*/
@@ -141,7 +141,7 @@
 	 * Create connection with PTT sever
 	 * param	string	id				user id for login to PTT sever
 	 * param	string	ps				user password for login to PTT sever
-	 * param	function callback		function that is executed after login to PTT sever 
+	 * param	function	callback		function that is executed after login to PTT sever 
 	 * return object					the connection between client and sever
 	 */
 	function login(id, ps, callback){
