@@ -223,33 +223,33 @@
 	 * param	function	callback	function that is executed after the bot goes back to main screen
 	 * return	None
 	 */
-function toMain( callback ){
+	function toMain( callback ){
 	
-	addCallbackWithNullCommand(function(){ /* 在傳送指令前, 先將ptt-bot的狀態改變 */
-		g_workingState = State_ReturningtoMain;
-		clearScreenBufRow();//clean old data, since g_screenBufRow is not used until nextPttComand. 
-	});
-	addCommands(CtrlL,function(){
-		/* 重傳內容, 讓bot根據不同的內容作不同的回應 */
-	});
-	
-}
+		addCallbackWithNullCommand(function(){ /* 在傳送指令前, 先將ptt-bot的狀態改變 */
+			g_workingState = State_ReturningtoMain;
+			clearScreenBufRow();//clean old data, since g_screenBufRow is not used until nextPttComand. 
+		});
+		addCommands(CtrlL,function(){
+			/* 重傳內容, 讓bot根據不同的內容作不同的回應 */
+		});
+		
+	}
 	/**
 	 * Goes to certain board(article list) screen wherever the bot is.
-	 * param	string	BoardName			full board name that bot is eager to enter
+	 * param	string	BoardName		full board name that bot is eager to enter
 	 * param	function	callback	function that is executed after the bot goes back to main screen
 	 * return	None
 	 */
-function toBoard( BoardName,callback ){
-
-	var command = 's' + BoardName + '\r';
-	addCallbackWithNullCommand(function(){ /* 在傳送指令前, 先將ptt-bot的狀態改變 */
-		g_workingState = State_EnteringBoard;
-		clearScreenBufRow();//clean old data, since g_screenBufRow is not used until nextPttComand. 
-	});
-	addCommands(command,callback);
+	function toBoard( BoardName,callback ){
 	
-}
+		var command = 's' + BoardName + '\r';
+		addCallbackWithNullCommand(function(){ /* 在傳送指令前, 先將ptt-bot的狀態改變 */
+			g_workingState = State_EnteringBoard;
+			clearScreenBufRow();//clean old data, since g_screenBufRow is not used until nextPttComand. 
+		});
+		addCommands(command,callback);
+		
+	}
 
 
 function toArticle(NumStr,callback){
