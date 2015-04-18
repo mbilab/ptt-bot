@@ -258,7 +258,7 @@
 	 * Goes into target article ONLY WHEN THE BOT IS IN CERTAIN BOARD.
 	 * param	string	NumStr			the serial number of the target article
 	 * param	function	callback	function that is executed after the bot goes into target article, 
-							use loadArticle() followed by getArticle() to get the full content of target article 
+							use loadArticle() followed by getArticle() to get the full content of target article in callback
 	 * return	None
 	 */
 	function toArticle(NumStr,callback){
@@ -269,27 +269,38 @@
 	}
 
 	
-function loadArticle(callback){
+	/**
+	 * Download the full article, usually followed by getArticle() to get the content.
+	 * param	function	callback	function that is executed after the bot has downloaded the article, 
+	 * return	None
+	 */
+	function loadArticle(callback){
+		
+		addCallbackWithNullCommand(function(){ 
+			g_workingState = State_CollectingArticle;
+			clearScreenBufRow();//clean old data, since g_screenBufRow is not used until nextPttComand. 
+		});
+		addCommands(CtrlL,callback);
+		
+	}
 	
-	addCallbackWithNullCommand(function(){ 
-		g_workingState = State_CollectingArticle;
-		clearScreenBufRow();//clean old data, since g_screenBufRow is not used until nextPttComand. 
-	});
-	addCommands(CtrlL,callback);
 	
-}
+	/**
+	 * Get the content of current screen, USUALLY USE IT IN CALLBACK OF TO-SCREEN FUNCTION.
+	 * param	None
+	 * return	string				the full content of current screen
+	 */
+	function getScreen(){
 
-function getScreen(){
+		return g_screenBuf;
 
-	return g_screenBuf;
+	}
 
-}
+	function getArticle(){
 
-function getArticle(){
+		return g_articleBuf;
 
-	return g_articleBuf;
-
-}
+	}
 
 function escapeANSI(str){
 
