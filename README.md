@@ -8,6 +8,8 @@ Ptt-bot is an open source node.js project for crawling data from **PTT**[4].
 
 關鍵字:　批踢踢機器人、自動化、PTT Crawler
 
+# Demo
+
 # Development
 
 第一次可以先執行此指令, 以安裝所有套件。 或自行個別安裝(參閱 **Require**)。
@@ -16,7 +18,7 @@ Ptt-bot is an open source node.js project for crawling data from **PTT**[4].
 		./package.ls
 		npm i
 
-Require
+# Require
 ----------
 #### string.js ####
  
@@ -102,3 +104,4 @@ References
 [R7]: http://www.novell.com/documentation/extend52/Docs/help/Composer/books/TelnetAppendixB.html
 [R8]: https://www.ptt.cc/bbs/Soft_Job/M.1388674793.A.B82.html 
 
+# Contribute to ptt-bot
