@@ -309,471 +309,527 @@
 	}
 
 	
-	
+	/**
+	 * Remove the whole ANSI code in content.
+	 * param	string	str			original content that contains ANSI code  
+	 * return	string				string that ANSI code is removed
+	 */
 	function escapeANSI(str){
 	
 		return	str.replace(AnsiSetDisplayAttr,"");
 	
 	}
-
-function sendPressAnyKey(callback){
-
-	addCommands(Enter,callback);
-
-}
-
-function sendCtrlL(callback){
-
-	addCommands(CtrlL,callback);	
-
-}
-
-function sendPageUp(callback){
-
-	addCommands(PageUp,callback);	
-
-}
-
-function sendPageDown(callback){
-
-	addCommands(pageDown,callback);	
-
-}
-
-function sendLeft(callback){
-
-	addCommands(Left,callback);
-	
-}
-
-function sendRight(callback){
-
-	addCommands(Right,callback);
-
-}
-
-function addCallbackWithNullCommand(callback){
-	
-	g_commandsObj.PttCommands.push(CtrlL);//CtrlL is useless in here. Not for ask for reload screen data.
-	g_commandsObj.callbacks.push((callback ? callback : function(){}));	
-
-}
-
-/*
-
-function toFavBoard(callback){
-
-	//FIXME
-	var command = 'f\r';
-	addCommands(command,callback);
-
-}
-
-
-function toHotBoard(){
-
-	//FIXME
-	sendCommand( 'c' );
-	sendCommand( '\r' );
-	sendCommand( 'p' );
-	sendCommand( '\r' );	
-
-}
-*/
-
-
-/*****
-	export public function
-*****/
-exports.login = login;
-exports.getScreen = getScreen;
-exports.getArticle = getArticle;
-exports.escapeANSI = escapeANSI;
-exports.execFuntion = addCallbackWithNullCommand;
-
-exports.toMain = toMain;
-exports.toArticle = toArticle;
-exports.toBoard = toBoard;
-exports.toArticlesList = toBoard;
-//exports.toFavBoard = toFavBoard;
-//exports.toHotBoard = toHotBoard;
-
-exports.sendCtrlL = sendCtrlL;
-exports.sendPageUp = sendPageUp;
-exports.sendPageDown = sendPageDown;
-exports.sendLeft = sendLeft;
-exports.sendRight = sendRight;
-exports.sendPressAnyKey = sendPressAnyKey;
-
-
-/*****
-	Applied-method
-*****/
-function collectArticleFromBoard(boardName,startIndex,totalAmount,targetDic){
-	
-	var bot = this;
-	
-	bot.toBoard(boardName,function(){
-		
-		console.log('已進入'+boardName+'板，接著收集文章!');
-		
-	});
-	
-	_indexForArticle = startIndex; //global
-	
-	for( var _=0;_<totalAmount;_++ ){
-		
-		bot.toArticle(_+_indexForArticle,function(){ 
 			
-			console.log('進入'+_indexForArticle+'文章中');
+			
+	/**
+	 * Send "Press Any Key" command.
+	 * param	function	callback	function that is executed after the bot has sent command
+	 * return	None
+	 */		
+	function sendPressAnyKey(callback){
+		
+		addCommands(Enter,callback);
+		
+	}
+	
+
+	/**
+	 * Send "CtrL" command to ask for refreshing the screen.
+	 * param	function	callback	function that is executed after the bot has sent command
+	 * return	None
+	 */		
+	function sendCtrlL(callback){
+
+		addCommands(CtrlL,callback);	
+
+	}
+			
+			
+	/**
+	 * Send "PageUp" command, shall be used in Board List or Article List(Board). 
+	 * param	function	callback	function that is executed after the bot has sent command
+	 * return	None
+	 */		
+	function sendPageUp(callback){
+		
+		addCommands(PageUp,callback);	
+		
+	}
+		
+		
+	/**
+	 * Send "PageDown" command, shall be used in Board List or Article List(Board). 
+	 * param	function	callback	function that is executed after the bot has sent command
+	 * return	None
+	 */		
+	function sendPageDown(callback){
+
+		addCommands(pageDown,callback);	
+	
+	}
+		
+		
+	/**
+	 * Send "Left" command.
+	 * param	function	callback	function that is executed after the bot has sent command
+	 * return	None
+	 */		
+	function sendLeft(callback){
+
+		addCommands(Left,callback);
+	
+	}
+		
+		
+	/**
+	 * Send "Right" command.
+	 * param	function	callback	function that is executed after the bot has sent command
+	 * return	None
+	 */		
+	function sendRight(callback){
+		
+		addCommands(Right,callback);
+	
+	}
+		
+		
+	/**
+	 * Developers can add some functions between commands.
+	 * param	function	callback	function that is eager to execute
+	 * return	None
+	 */		
+	function execFuntion(callback){
+	
+		g_commandsObj.PttCommands.push(CtrlL);//CtrlL is useless in here. Not for ask for reload screen data.
+		g_commandsObj.callbacks.push((callback ? callback : function(){}));	
+
+	}
+
+	
+	/*
+
+	function toFavBoard(callback){
+
+		//FIXME
+		var command = 'f\r';
+		addCommands(command,callback);
+
+	}
+
+
+	function toHotBoard(){
+
+		//FIXME
+		sendCommand( 'c' );
+		sendCommand( '\r' );
+		sendCommand( 'p' );
+		sendCommand( '\r' );	
+
+	}
+	*/
+
+
+	/*****
+		export public function
+	*****/
+	exports.login = login;
+	exports.getScreen = getScreen;
+	exports.getArticle = getArticle;
+	exports.escapeANSI = escapeANSI;
+	exports.execFuntion = execFuntion;
+
+	exports.toMain = toMain;
+	exports.toArticle = toArticle;
+	exports.toBoard = toBoard;
+	exports.toArticlesList = toBoard;
+	//exports.toFavBoard = toFavBoard;
+	//exports.toHotBoard = toHotBoard;
+
+	exports.sendCtrlL = sendCtrlL;
+	exports.sendPageUp = sendPageUp;
+	exports.sendPageDown = sendPageDown;
+	exports.sendLeft = sendLeft;
+	exports.sendRight = sendRight;
+	exports.sendPressAnyKey = sendPressAnyKey;
+
+
+	/*****
+		Applied-method
+	*****/
+	function collectArticleFromBoard(boardName,startIndex,totalAmount,targetDic){
+	
+		var bot = this;
+	
+		bot.toBoard(boardName,function(){
+		
+			console.log('已進入'+boardName+'板，接著收集文章!');
 			
 		});
 	
-		bot.loadArticle(function(){
+		_indexForArticle = startIndex; //global
+	
+		for( var _=0;_<totalAmount;_++ ){
 		
-			fs.writeFile(targetDic+'/'+boardName+_indexForArticle+'.txt', iconv.encode( bot.getArticle(),'big5' ), function (err) {
+			bot.toArticle(_+_indexForArticle,function(){ 
+			
+				console.log('進入'+_indexForArticle+'文章中');
+			
+			});
+	
+			bot.loadArticle(function(){
+		
+				fs.writeFile(targetDic+'/'+boardName+_indexForArticle+'.txt', iconv.encode( bot.getArticle(),'big5' ), function (err) {
+				
+					if (err) throw err;
+					console.log(boardName+_indexForArticle+' 已經被儲存囉!');
+					_indexForArticle++;
+				
+				});
+			
+			});
+		
+		}
+	
+	}
+
+	function collectArticleFromBoardWithoutANSI(boardName,startIndex,totalAmount,targetDic){
+	
+		var bot = this;
+	
+		bot.toBoard(boardName,function(){
+		
+			console.log('已進入'+boardName+'板，接著收集文章!');
+		
+		});
+	
+		_indexForArticle = startIndex; //global
+	
+		for( var _=0;_<totalAmount;_++ ){
+		
+			bot.toArticle(_+_indexForArticle,function(){ 
+			
+				console.log('進入'+_indexForArticle+'文章中');
+			
+			});
+	
+			bot.loadArticle(function(){
+		
+				fs.writeFile(targetDic+'/'+boardName+_indexForArticle+'_withoutANSI.txt', iconv.encode( escapeANSI( bot.getArticle() ),'big5' ), function (err) {
+				
+					if (err) throw err;
+					console.log(boardName+_indexForArticle+' 已經被儲存囉!');
+					_indexForArticle++;
+				
+				});
+			
+			});
+		
+		}
+
+	}
+
+	/*****
+		export Applied function
+	*****/
+	exports.collectArticleFromBoard = collectArticleFromBoard;
+	exports.collectArticleFromBoardWithoutANSI = collectArticleFromBoardWithoutANSI;
+
+
+	/*****
+		private function
+	*****/
+
+	function executeCallback(){
+
+		g_commandsObj.callbacks.shift()();
+
+	}
+
+	function sendCommand(command){
+	
+		g_conn.write(command);
+	
+	}
+
+	function loadNextCommand(){
+
+		if(g_commandsObj.PttCommands.length != 0){		
+			var PttCommand = g_commandsObj.PttCommands.shift();
+			sendCommand(PttCommand+CtrlL);	//FixMe
+		}
+	
+		else {
+			g_conn.removeAllListeners('timeout');
+			g_conn.end();
+		}	
+	
+	}
+
+	function moveToNextPage(screenData){ /* for Collecting Article */
+
+		if( g_workingState==State_CollectingArticle ) { /* 下一頁 */
+	
+			sendCommand(Right+CtrlL);
+	
+		}
+	
+		else if( where(screenData) == ArticleList ){ /* 有時候文章被刪除會回到文章列表 */
+	
+			console.log("該篇文章已被刪除!");
+			executeCallback();
+			loadNextCommand();
+			clearArticleBuf();
+		
+		}
+	
+		else{
+			executeCallback();
+			sendCommand(Left);	/* goes back to ArticleList */
+			loadNextCommand();
+			clearArticleBuf();
+		}
+
+	}
+
+	function collectArticle(screenData){
+		
+		//console.log(screenData);	
+		if( where(screenData) == Article){	
+		
+			var row = S(g_screenBuf).between(ArticleIndexStart,ArticleIndexEnd).replaceAll(' ', '"').replaceAll('~', '","').s; 
+			var rowStart = parseInt(S(row).parseCSV()[0]==1 ? 0 : S(row).parseCSV()[0]);
+			var rowEnd = parseInt(S(row).parseCSV()[1]);	
+			var articleRow = S(g_articleBuf).lines();
+			var newArticleRow = S(g_screenBuf).lines().slice(1);
+	
+			for(var _=rowStart;_<=rowEnd;_++){
+				articleRow[_] = newArticleRow[_-rowStart];
+			}
+	
+			clearArticleBuf();
+	
+			for(var _ = -1, n = articleRow.length; ++_ < n ;){
+				g_articleBuf += articleRow[_] + '\r\n';
+			}
+	
+			if(S(g_screenBuf).between(ArticlePercentStart,ArticlePercentEnd).s == '100'){
+				g_workingState = State_LoadNextPttbotComand;
+			}
+		
+		}
+		else{
+	
+			console.log(screenData);
+			g_workingState = State_LoadNextPttbotComand;
+	
+		}
+	}
+
+	function addCommands(command,callback){
+	
+		g_commandsObj.PttCommands.push(command);
+		g_commandsObj.callbacks.push((callback ? callback : function(){}));	
+	
+	}
+
+	/* 	
+		Add callback function for null command, mostly used for 
+		state transfer internally before execute user's callback 
+		function.
+	
+	*/
+	function addCallbackWithNullCommand(callback){
+	
+		g_commandsObj.PttCommands.push(CtrlL);//CtrlL is useless in here. Not for ask for reload screen data.
+		g_commandsObj.callbacks.push((callback ? callback : function(){}));	
+
+	}
+	
+	
+	function decode_asBig5(data){
+
+		return iconv.decode( data ,'big5');
+
+	}
+
+	function getAnsiInfo(){
+		/**	
+			when user need ansi information. generate it.
+			return both big5Arr and AnsiArr.
+		**/
+	}
+
+	function loginDataHandler(newdataStr, id, ps){
+
+		if (newdataStr.indexOf("140.112.172.11") != -1 && newdataStr.indexOf("批踢踢實業坊") != -1) {
+		}
+	
+		if (newdataStr.indexOf("您想刪除其他重複登入的連線嗎") != -1){
+			sendCommand( 'y\r' );	
+			console.log( '已刪除其他重複登入的連線' );
+		}
+	
+		if (newdataStr.indexOf("登入中") != -1){
+			console.log("[1;33m登入中...[m");
+		}
+	
+		if (newdataStr.indexOf("請輸入代號，或以 guest 參觀，或以 new 註冊:") != -1){
+			console.log("[1;33m請輸入代號，或以 guest 參觀，或以 new 註冊:[m");
+			sendCommand( id+'\r' );
+			console.log("[32m(已輸入帳號)[m");
+		}
+	
+		if (newdataStr.indexOf("請輸入您的密碼") != -1){
+			console.log("[1;33m請輸入您的密碼:[m");
+			sendCommand( ps+'\r' );
+			console.log("[32m(已輸入密碼)[m");
+		}		
+	
+		if (newdataStr.indexOf("歡迎您再度拜訪") != -1){
+			console.log("[1;33m歡迎您再度拜訪![m");
+			sendCommand( '\r' );
+			console.log("[32m(已按任意鍵繼續)[m");
+		}
+	
+		if (newdataStr.indexOf("按任意鍵繼續") != -1 && newdataStr.indexOf("請勿頻繁登入以免造成系統過度負荷") != -1){
+			sendCommand( '\r' );
+			console.log("[32m(請勿頻繁登入以免造成系統過度負荷)[m");
+		}
+	
+		if (newdataStr.indexOf("離開，再見…") != -1){
+	
+			console.log( 'Robot commands for main screen should be executed here.↓ ↓ ↓\n[1;32m您現在位於【主功能表】[m' ); 
+			g_workingState = State_LoadNextPttbotComand;
+	
+			g_screenBufRow = screen.parseNewdata(g_cursor,newdataStr);
+
+			sendCommand( CtrlL );
+
+		}	
+
+	}
+
+	function ReturningMainDataHandler(newdataStr){
+	
+		//根據不同的地點執行不同的指令到回到相同的MAIN
+		switch( where(newdataStr) ){
+		
+			case ArticleList:
+				sendCommand( CtrlZ+'t'+Left );
+				break;
+		
+			case Article:
+				sendCommand( Left+CtrlZ+'t'+Left );
+				break;
+			
+			case HotBoard:
+				sendCommand( CtrlZ+'t'+Left );
+				break;
+			
+			case FavBoard:
+				sendCommand( CtrlZ+'t'+Left );
+				break;
+			
+			case BoardList:
+				sendCommand( CtrlZ+'t'+Left );
+				break;
+		
+			case BoardClass:
+				sendCommand( CtrlZ+'t'+Left );
+				break;
+		
+			default:
+				/* 已回主功能表 */
+				g_workingState = State_LoadNextPttbotComand;
+				sendCommand( CtrlL );//for emit next command
+				console.log('已經回到主頁面囉!!!');
+	
+		}	
+	
+	}	
+
+	/*
+		FixME: 有些版有進版動畫, 會進入到頁面
+				but most case is OK!
+	*/
+	function enteringBoardDataHandler(newdataStr){
+	
+		if (newdataStr.indexOf("按任意鍵繼續") != -1){
+	
+			sendCommand( Enter );
+			console.log("[32m已按任意見繼續 進入看板[m");
+	
+		}
+		else{ 
+		
+			sendCommand( CtrlL );
+			g_workingState = State_LoadNextPttbotComand;
+		
+		}	
+	}
+
+	function where(screenData){
+
+		/**FIXME**/
+		var screenStr = iconv.decode(iconv.encode(screenData,'big5'),'big5');
+		if (screenStr.indexOf("主功能表") != -1){
+			return Main;
+		}
+	
+		else if(screenStr.indexOf("[←]離開 [→]閱讀 [Ctrl-P]發表文章 [d]刪除 [z]精華區 [i]看板資訊/設定 [h]說明") != -1){
+			return ArticleList;
+		}
+	
+		else if(screenStr.indexOf("[1;30;47m 目前顯示: 第") != -1 && screenStr.indexOf("(y)[30m回應") != -1){
+			return Article;
+		}
+	
+		else if(screenStr.indexOf("只列最愛") != -1){
+			return HotBoard;
+		}
+	
+		else if(screenStr.indexOf("看板列") != -1 && screenStr.indexOf("增加看板") != -1){
+			return FavBoard;
+		}
+	
+		else if(screenStr.indexOf("加入/移出最愛") != -1){
+			return BoardList;
+		}
+	
+		else if(screenStr.indexOf("即時熱門看板") != -1){
+			return BoardClass;
+		}
+	
+		else{
+			console.log("Warning: where() can't find where you are.");
+			//console.log(screenStr);
+			/*
+			fs.writeFile('C:/Users/user/Google 雲端硬碟/movieBoardData/cannot.txt', iconv.encode(screenStr,'big5'), function (err) {
 				
 				if (err) throw err;
-				console.log(boardName+_indexForArticle+' 已經被儲存囉!');
-				_indexForArticle++;
+				console.log(' is saved!');
 				
 			});
-			
-		});
-		
-	}
-
-}
-
-function collectArticleFromBoardWithoutANSI(boardName,startIndex,totalAmount,targetDic){
-	
-	var bot = this;
-	
-	bot.toBoard(boardName,function(){
-		
-		console.log('已進入'+boardName+'板，接著收集文章!');
-		
-	});
-	
-	_indexForArticle = startIndex; //global
-	
-	for( var _=0;_<totalAmount;_++ ){
-		
-		bot.toArticle(_+_indexForArticle,function(){ 
-			
-			console.log('進入'+_indexForArticle+'文章中');
-			
-		});
-	
-		bot.loadArticle(function(){
-		
-			fs.writeFile(targetDic+'/'+boardName+_indexForArticle+'_withoutANSI.txt', iconv.encode( escapeANSI( bot.getArticle() ),'big5' ), function (err) {
-				
-				if (err) throw err;
-				console.log(boardName+_indexForArticle+' 已經被儲存囉!');
-				_indexForArticle++;
-				
-			});
-			
-		});
-		
-	}
-
-}
-
-/*****
-	export Applied function
-*****/
-exports.collectArticleFromBoard = collectArticleFromBoard;
-exports.collectArticleFromBoardWithoutANSI = collectArticleFromBoardWithoutANSI;
-
-
-/*****
-	private function
-*****/
-
-function executeCallback(){
-
-	g_commandsObj.callbacks.shift()();
-
-}
-
-function sendCommand(command){
-	g_conn.write(command);
-}
-
-function loadNextCommand(){
-
-	if(g_commandsObj.PttCommands.length != 0){		
-		var PttCommand = g_commandsObj.PttCommands.shift();
-		sendCommand(PttCommand+CtrlL);	//FixMe
-	}
-	
-	else {
-		g_conn.removeAllListeners('timeout');
-		g_conn.end();
-	}	
-	
-}
-
-function moveToNextPage(screenData){
-
-	if( g_workingState==State_CollectingArticle ) { /* 下一頁 */
-	
-		sendCommand(Right+CtrlL);
+			*/
+			return false;
+		} 
 	
 	}
+
+	function clearSceenBuf(){
 	
-	else if( where(screenData) == ArticleList ){ /* 有時候文章被刪除會回到文章列表 */
+		g_screenBuf = '';
 	
-		console.log("該篇文章已被刪除!");
-		executeCallback();
-		loadNextCommand();
-		clearArticleBuf();
-		
-	}
-	
-	else{
-		executeCallback();
-		sendCommand(Left);	/* goes back to ArticleList */
-		loadNextCommand();
-		clearArticleBuf();
 	}
 
-}
+	function clearArticleBuf(){
+	
+		g_articleBuf = '';
 
-function collectArticle(screenData){
-		
-	//console.log(screenData);	
-	if( where(screenData) == Article){	
-	
-		var row = S(g_screenBuf).between(ArticleIndexStart,ArticleIndexEnd).replaceAll(' ', '"').replaceAll('~', '","').s; 
-		var rowStart = parseInt(S(row).parseCSV()[0]==1 ? 0 : S(row).parseCSV()[0]);
-		var rowEnd = parseInt(S(row).parseCSV()[1]);	
-		var articleRow = S(g_articleBuf).lines();
-		var newArticleRow = S(g_screenBuf).lines().slice(1);
-	
-		for(var _=rowStart;_<=rowEnd;_++){
-			articleRow[_] = newArticleRow[_-rowStart];
-		}
-	
-		clearArticleBuf();
-	
-		for(var _ = -1, n = articleRow.length; ++_ < n ;){
-			g_articleBuf += articleRow[_] + '\r\n';
-		}
-	
-		if(S(g_screenBuf).between(ArticlePercentStart,ArticlePercentEnd).s == '100'){
-			g_workingState = State_LoadNextPttbotComand;
-		}
-		
 	}
-	else{
-	
-		console.log(screenData);
-		g_workingState = State_LoadNextPttbotComand;
-	
+
+	function clearScreenBufRow(){
+
+		g_screenBufRow = [' null_row;'].concat(S(nullScreen).lines());
+
 	}
-}
-
-function addCommands(command,callback){
-	
-	g_commandsObj.PttCommands.push(command);
-	g_commandsObj.callbacks.push((callback ? callback : function(){}));	
-	
-}
-
-/* 	
-	Add callback function for null command, mostly used for 
-	state transfer internally before execute user's callback 
-	function.
-	
-*/
-
-function decode_asBig5(data){
-
-	return iconv.decode( data ,'big5');
-
-}
-
-function getAnsiInfo(){
-    /**	
-		when user need ansi information. generate it.
-		return both big5Arr and AnsiArr.
-	**/
-}
-
-function loginDataHandler(newdataStr, id, ps){
-
-	if (newdataStr.indexOf("140.112.172.11") != -1 && newdataStr.indexOf("批踢踢實業坊") != -1) {
-	}
-	
-	if (newdataStr.indexOf("您想刪除其他重複登入的連線嗎") != -1){
-		sendCommand( 'y\r' );	
-		console.log( '已刪除其他重複登入的連線' );
-	}
-	
-	if (newdataStr.indexOf("登入中") != -1){
-		console.log("[1;33m登入中...[m");
-	}
-	
-	if (newdataStr.indexOf("請輸入代號，或以 guest 參觀，或以 new 註冊:") != -1){
-		console.log("[1;33m請輸入代號，或以 guest 參觀，或以 new 註冊:[m");
-		sendCommand( id+'\r' );
-		console.log("[32m(已輸入帳號)[m");
-	}
-	
-	if (newdataStr.indexOf("請輸入您的密碼") != -1){
-		console.log("[1;33m請輸入您的密碼:[m");
-		sendCommand( ps+'\r' );
-		console.log("[32m(已輸入密碼)[m");
-	}		
-	
-	if (newdataStr.indexOf("歡迎您再度拜訪") != -1){
-		console.log("[1;33m歡迎您再度拜訪![m");
-		sendCommand( '\r' );
-		console.log("[32m(已按任意鍵繼續)[m");
-	}
-	
-	if (newdataStr.indexOf("按任意鍵繼續") != -1 && newdataStr.indexOf("請勿頻繁登入以免造成系統過度負荷") != -1){
-		sendCommand( '\r' );
-		console.log("[32m(請勿頻繁登入以免造成系統過度負荷)[m");
-	}
-	
-	if (newdataStr.indexOf("離開，再見…") != -1){
-	
-		console.log( 'Robot commands for main screen should be executed here.↓ ↓ ↓\n[1;32m您現在位於【主功能表】[m' ); 
-		g_workingState = State_LoadNextPttbotComand;
-	
-		g_screenBufRow = screen.parseNewdata(g_cursor,newdataStr);
-
-		sendCommand( CtrlL );
-
-	}	
-
-}
-
-function ReturningMainDataHandler(newdataStr){
-	
-	//根據不同的地點執行不同的指令到回到相同的MAIN
-	switch( where(newdataStr) ){
-		
-		case ArticleList:
-			sendCommand( CtrlZ+'t'+Left );
-			break;
-		
-		case Article:
-			sendCommand( Left+CtrlZ+'t'+Left );
-			break;
-			
-		case HotBoard:
-			sendCommand( CtrlZ+'t'+Left );
-			break;
-			
-		case FavBoard:
-			sendCommand( CtrlZ+'t'+Left );
-			break;
-			
-		case BoardList:
-			sendCommand( CtrlZ+'t'+Left );
-			break;
-		
-		case BoardClass:
-			sendCommand( CtrlZ+'t'+Left );
-			break;
-		
-		default:
-			/* 已回主功能表 */
-			g_workingState = State_LoadNextPttbotComand;
-			sendCommand( CtrlL );//for emit next command
-			console.log('已經回到主頁面囉!!!');
-	
-	}	
-	
-}	
-
-/*
-	FixME: 有些版有進版動畫, 會進入到頁面
-		   but most case is OK!
-*/
-function enteringBoardDataHandler(newdataStr){
-	
-	if (newdataStr.indexOf("按任意鍵繼續") != -1){
-	
-		sendCommand( Enter );
-		console.log("[32m已按任意見繼續 進入看板[m");
-	
-	}
-	else{ 
-		
-		sendCommand( CtrlL );
-		g_workingState = State_LoadNextPttbotComand;
-		
-	}	
-}
-
-function where(screenData){
-
-	/**FIXME**/
-	var screenStr = iconv.decode(iconv.encode(screenData,'big5'),'big5');
-	if (screenStr.indexOf("主功能表") != -1){
-		return Main;
-	}
-	
-	else if(screenStr.indexOf("[←]離開 [→]閱讀 [Ctrl-P]發表文章 [d]刪除 [z]精華區 [i]看板資訊/設定 [h]說明") != -1){
-		return ArticleList;
-	}
-	
-	else if(screenStr.indexOf("[1;30;47m 目前顯示: 第") != -1 && screenStr.indexOf("(y)[30m回應") != -1){
-		return Article;
-	}
-	
-	else if(screenStr.indexOf("只列最愛") != -1){
-		return HotBoard;
-	}
-	
-	else if(screenStr.indexOf("看板列") != -1 && screenStr.indexOf("增加看板") != -1){
-		return FavBoard;
-	}
-	
-	else if(screenStr.indexOf("加入/移出最愛") != -1){
-		return BoardList;
-	}
-	
-	else if(screenStr.indexOf("即時熱門看板") != -1){
-		return BoardClass;
-	}
-	
-	else{
-		console.log("Warning: where() can't find where you are.");
-		//console.log(screenStr);
-		/*
-		fs.writeFile('C:/Users/user/Google 雲端硬碟/movieBoardData/cannot.txt', iconv.encode(screenStr,'big5'), function (err) {
-				
-			if (err) throw err;
-			console.log(' is saved!');
-				
-		});
-		*/
-		return false;
-	} 
-	
-}
-
-function clearSceenBuf(){
-	
-	g_screenBuf = '';
-	
-}
-
-function clearArticleBuf(){
-	
-	g_articleBuf = '';
-
-}
-
-function clearScreenBufRow(){
-
-	g_screenBufRow = [' null_row;'].concat(S(nullScreen).lines());
-
-}
