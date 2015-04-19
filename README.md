@@ -10,7 +10,7 @@ Ptt-bot is an open source node.js project for crawling data from **PTT**[4].
 
 # Development
 
-第一次可以先執行此指令, 以安裝所有套件, 或自行個別安裝( 參閱Require )
+第一次可以先執行此指令, 以安裝所有套件。 或自行個別安裝( 參閱 **Require** )
 
 		npm i LiveScript
 		./package.ls
