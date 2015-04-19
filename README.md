@@ -1,4 +1,4 @@
-PTT-BOT(This project is still under construction)
+PTT-BOT
 =====================
 
 # Overview
