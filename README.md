@@ -1,7 +1,7 @@
 PTT-BOT
 =====================
 
-# Overview
+## Overview
 
 **Ptt-bot** 是一個開放原始碼的專案，它的目標在於提供開發者在開發批踢踢機器人所需要的底層架構與函式和上層應用程式，解決需要開發時會遇到的各種底層惱人的問題。**Ptt-bot** 由 **JavaScript**[1] 編寫，並需要在 [**node.JS**][package1] 的環境下運行。**Ptt-bot** 使用 **node.JS** 原生的 [**Net**][package2] 套件進行 **Telnet**[2] 的連線，並利用 [**iconv-lite**][package3] 和 [**String.js**][package4] 套件分別解決 **Big5編碼**[3] 與字串解析的問題。
 
@@ -9,9 +9,9 @@ Ptt-bot is an open source node.js project for crawling data from **PTT**[4].
 
 關鍵字:　批踢踢機器人、自動化、PTT Crawler
 
-# How to use it?
+## How to use it?
 
-# Development
+## Development
 
 
 第一次可以先執行此指令, 以安裝所有套件。 或自行個別安裝(參閱 **Require**)。
