@@ -407,7 +407,6 @@
 
 	
 	/*
-
 	function toFavBoard(callback){
 
 		//FIXME
@@ -456,6 +455,16 @@
 	/*****
 		Applied-method
 	*****/
+	
+	
+	/**
+	 * Collect a consequent of articles started from certain serial number in certain board.(with ANSI code) 
+	 * param	string	boardName			Board name that developer eager to collect
+	 * param	int	startIndex			article serial number that developer eager to start
+	 * param	int	startIndex			the amount of articles that developer eager to collect
+	 * param	string	targetDic			the path for dictionary wherever developer wish to store the articles
+	 * return	None
+	 */		
 	function collectArticleFromBoard(boardName,startIndex,totalAmount,targetDic){
 	
 		var bot = this;
@@ -492,6 +501,15 @@
 	
 	}
 
+	
+	/**
+	 * Collect a consequent of articles started from certain serial number in certain board.(without ANSI code) 
+	 * param	string	boardName			Board name that developer eager to collect
+	 * param	int	startIndex			article serial number that developer eager to start
+	 * param	int	startIndex			the amount of articles that developer eager to collect
+	 * param	string	targetDic			the path for dictionary wherever developer wish to store the articles
+	 * return	None
+	 */		
 	function collectArticleFromBoardWithoutANSI(boardName,startIndex,totalAmount,targetDic){
 	
 		var bot = this;
