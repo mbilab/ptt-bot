@@ -102,9 +102,3 @@ References
 [R7]: http://www.novell.com/documentation/extend52/Docs/help/Composer/books/TelnetAppendixB.html
 [R8]: https://www.ptt.cc/bbs/Soft_Job/M.1388674793.A.B82.html 
 
-Tools
----------
-* [**Online Regex Tester**][T1] - an online regex tester for javascript, php, pcre and python.
-* [**StackEdit**][T2] - markdown editor.
-[T1]: http://regex101.com/#pcre
-[T2]: https://stackedit.io/#
