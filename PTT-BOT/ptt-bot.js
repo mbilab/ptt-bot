@@ -395,13 +395,13 @@
 		
 	/**
 	 * Developers can add some functions between commands.
-	 * param	function	callback	function that is eager to execute
+	 * param	function	func	function that is eager to execute
 	 * return	None
 	 */		
-	function execFuntion(callback){
+	function execFuntion(func){
 	
 		g_commandsObj.PttCommands.push(CtrlL);//CtrlL is useless in here. Not for ask for reload screen data.
-		g_commandsObj.callbacks.push((callback ? callback : function(){}));	
+		g_commandsObj.callbacks.push((func ? func : function(){}));	
 
 	}
 

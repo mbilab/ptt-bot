@@ -44,13 +44,41 @@ Require
 
 Base-method
 ----------
+ * login(id, ps, callback)
+ 
+ * sendPressAnyKey(callback)
+ 
+ * sendCtrlL(callback)
+ 
+ * sendPageUp(callback)
+ 
+ * sendPageDown(callback)
+ 
+ * sendLeft(callback)
+ 
+ * sendRight(callback)
+ 
+ * getScreen()
+ 
+ * getArticle()
+ 
+ * escapeANSI(str)
+ 
+ * toMain(callback)
+ 
+ * toBoard(BoardName,callback)
+ 
+ * toArticle(NumStr,callback)
 
-
+ * loadArticle(callback)
+ 
+ * execFuntion(func)
+ 
 Applied-method
 ----------
- * filter( factor1, factor2, factor3 )
+ * collectArticleFromBoard(boardName,startIndex,totalAmount,targetDic)
 
- * getPopularArticleTitles( board, #push, #article )
+ * collectArticleFromBoardWithoutANSI(boardName,startIndex,totalAmount,targetDic)
   
 
 References
