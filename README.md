@@ -24,7 +24,7 @@ Ptt-bot is an open source node.js project for crawling data from **PTT**[4].
 	/*	進入欲收集的電影版版中	*/
 	myBot.toBoard('movie',function(){
 		
-			console.log('已進入movie板，接著收集文章!');
+		console.log('已進入movie板，接著收集文章!');
 		
 	});
 	
