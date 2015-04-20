@@ -13,7 +13,7 @@
 	/*	進入欲收集的電影版版中	*/
 	myBot.toBoard('movie',function(){
 		
-			console.log('已進入movie板，接著收集文章!');
+		console.log('已進入movie板，接著收集文章!');
 		
 	});
 	
