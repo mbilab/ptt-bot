@@ -14,7 +14,7 @@ Ptt-bot is an open source node.js project for crawling data from **PTT**[4].
 當您想要某個功能時，可以藉由base-method組合您想要的機器人。舉一個可以自動爬某版文章內容為例: 
 	
 	/*  與Ptt-sever建立連線  */
-	myBot.login( 'chengrobot', 'ps2014', function(){ //請自行輸入帳號密碼
+	myBot.login( id, ps, function(){ //請自行輸入帳號密碼
 		
 		/*	登入完後即停留在主功能表 */	
 		console.log('已進入主功能表');
