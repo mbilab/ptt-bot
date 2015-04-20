@@ -14,9 +14,9 @@ Ptt-bot is an open source node.js project for crawling data from **PTT**[4].
 當您想要某個功能時，可以藉由base-method組合您想要的機器人。舉一個可以自動爬某版文章內容為例: 
 	
 	/*  與Ptt-sever建立連線  */
-	myBot.login( id, ps, function(){ //請自行輸入帳號密碼
+	myBot.login( 'chengrobot', 'ps2014', function(){ //請自行輸入帳號密碼
 		
-		/*	登入完後即停留在主功能表	*/
+		/*	登入完後即停留在主功能表 */	
 		console.log('已進入主功能表');
 	
 	});
@@ -28,11 +28,11 @@ Ptt-bot is an open source node.js project for crawling data from **PTT**[4].
 		
 	});
 	
-	/*	從編號54600的文章開始收集	*/
-	_indexForArticle = 54600; //global
+	/*	從編號54635的文章開始收集	*/
+	_indexForArticle = 54635; //global
 	
-	/*	往後收集100篇文章	*/
-	for( var _=0;_<100;_++ ){
+	/*	往後收集5篇文章	*/
+	for( var _=0;_<5;_++ ){
 		
 		/*	先進入文章中	*/
 		myBot.toArticle(_+_indexForArticle,function(){ 
@@ -57,7 +57,7 @@ Ptt-bot is an open source node.js project for crawling data from **PTT**[4].
 		
 	}
 
-以上程式碼可以收錄在mybot.js中，然而以上的功能也被寫入collectArticleFromBoard()中，只需要輸入版名、起始文章編號、欲收集總數和欲儲存的路徑便可以直接執行。
+以上程式碼收錄在mybot.js中，然而以上的功能也已被寫入collectArticleFromBoard()中，只需要輸入版名、起始文章編號、欲收集總數和欲儲存的路徑便可以直接執行。
 
 	/*  與Ptt-sever建立連線  */
 	myBot.login( id, ps, function(){ //請自行輸入帳號密碼
@@ -68,9 +68,9 @@ Ptt-bot is an open source node.js project for crawling data from **PTT**[4].
 	});
 	
 	/*	直接執行收集文章的功能	*/
-	collectArticleFromBoard('movie',54600,100,'./');
+	myBot.collectArticleFromBoard('movie',54600,100,'./');
 	
-若你有開發了有趣的功能，請您別吝嗇分享給我們! 讓我們也可以收錄於applied-method中。:)	
+若您有開發了有趣的功能，請您別吝嗇分享給我們! 讓我們也可以收錄於applied-method中。:)	
 
 ## Development
 

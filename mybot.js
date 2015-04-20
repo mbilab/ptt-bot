@@ -1,17 +1,11 @@
-var myBot = require('./PTT-BOT/ptt-bot');
-var fs = require('fs');
-var iconv = require('iconv-lite'); 
+	var myBot = require('./PTT-BOT/ptt-bot');
+	var fs = require('fs');
+	var iconv = require('iconv-lite'); 
 
-fs.readFile('myID.txt',{encoding:'utf-8'}, function (err, data) {
-	
-	if (err) throw err;
-	id = S(data).between("ID:'","'").s;
-	ps = S(data).between("PS:'","'").s;
-	
-		/*  與Ptt-sever建立連線  */
-	myBot.login( id, ps, function(){ //請自行輸入帳號密碼
+	/*  與Ptt-sever建立連線  */
+	myBot.login( 'chengrobot', 'ps2014', function(){ //請自行輸入帳號密碼
 		
-		/*	登入完後即停留在主功能表	*/
+		/*	登入完後即停留在主功能表 */	
 		console.log('已進入主功能表');
 	
 	});
@@ -23,11 +17,11 @@ fs.readFile('myID.txt',{encoding:'utf-8'}, function (err, data) {
 		
 	});
 	
-	/*	從編號54600的文章開始收集	*/
-	_indexForArticle = 54600; //global
+	/*	從編號54635的文章開始收集	*/
+	_indexForArticle = 54635; //global
 	
-	/*	往後收集100篇文章	*/
-	for( var _=0;_<100;_++ ){
+	/*	往後收集5篇文章	*/
+	for( var _=0;_<5;_++ ){
 		
 		/*	先進入文章中	*/
 		myBot.toArticle(_+_indexForArticle,function(){ 
@@ -52,7 +46,18 @@ fs.readFile('myID.txt',{encoding:'utf-8'}, function (err, data) {
 		
 	}
 	
-});
+	/**	
+	//或使用 applied-method	
+	
+	//與Ptt-sever建立連線  
+	myBot.login( 'chengrobot', 'ps2014', function(){ //請自行輸入帳號密碼
+		
+		//登入完後即停留在主功能表	
+		console.log('已進入主功能表');
+	
+	});
+	
+	//直接執行收集文章的功能	
+	myBot.collectArticleFromBoard('movie',54620,5,'./');
 
-
-
+	**/
