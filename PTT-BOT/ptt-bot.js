@@ -433,6 +433,7 @@
 	*****/
 	exports.login = login;
 	exports.getScreen = getScreen;
+	exports.loadArticle = loadArticle;
 	exports.getArticle = getArticle;
 	exports.escapeANSI = escapeANSI;
 	exports.execFuntion = execFuntion;

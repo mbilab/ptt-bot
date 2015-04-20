@@ -11,40 +11,66 @@ Ptt-bot is an open source node.js project for crawling data from **PTT**[4].
 
 ## How to use it?
 
-
+當您想要某個功能時，可以藉由base-method組合您想要的機器人。舉一個可以自動爬某版文章內容為例: 
 	
-		var bot = this;
+	/*  與Ptt-sever建立連線  */
+	myBot.login( id, ps, function(){ //請自行輸入帳號密碼
+		
+		/*	登入完後即停留在主功能表	*/
+		console.log('已進入主功能表');
 	
-		bot.toBoard(boardName,function(){
+	});
+	
+	/*	進入欲收集的電影版版中	*/
+	myBot.toBoard('movie',function(){
 		
-			console.log('已進入'+boardName+'板，接著收集文章!');
+			console.log('已進入movie板，接著收集文章!');
 		
+	});
+	
+	/*	從編號54600的文章開始收集	*/
+	_indexForArticle = 54600; //global
+	
+	/*	往後收集100篇文章	*/
+	for( var _=0;_<100;_++ ){
+		
+		/*	先進入文章中	*/
+		myBot.toArticle(_+_indexForArticle,function(){ 
+			
+			console.log('進入'+_indexForArticle+'文章中');
+			
 		});
 	
-		_indexForArticle = startIndex; //global
-	
-		for( var _=0;_<totalAmount;_++ ){
+		/*	接著下載文章	*/
+		myBot.loadArticle(function(){
 		
-			bot.toArticle(_+_indexForArticle,function(){ 
-			
-				console.log('進入'+_indexForArticle+'文章中');
-			
-			});
-	
-			bot.loadArticle(function(){
-		
-				fs.writeFile(targetDic+'/'+boardName+_indexForArticle+'_withoutANSI.txt', iconv.encode( escapeANSI( bot.getArticle() ),'big5' ), function (err) {
+			/*	從getArticle()取得文章內容	*/
+			fs.writeFile('./'+'movie'+_indexForArticle+'_withoutANSI.txt', iconv.encode( myBot.escapeANSI( myBot.getArticle() ),'big5' ), function (err) {
 				
-					if (err) throw err;
-					console.log(boardName+_indexForArticle+' 已經被儲存囉!');
-					_indexForArticle++;
+				if (err) throw err;
+				console.log('movie'+_indexForArticle+' 已經被儲存囉!');
+				_indexForArticle++;
 				
-				});
-			
 			});
 		
-		}
+		});
+		
+	}
 
+以上程式碼可以收錄在mybot.js中，然而以上的功能也被寫入collectArticleFromBoard()中，只需要輸入版名、起始文章編號、欲收集總數和欲儲存的路徑便可以直接執行。
+
+	/*  與Ptt-sever建立連線  */
+	myBot.login( id, ps, function(){ //請自行輸入帳號密碼
+		
+		/*	登入完後即停留在主功能表	*/
+		console.log('已進入主功能表');
+	
+	});
+	
+	/*	直接執行收集文章的功能	*/
+	collectArticleFromBoard('movie',54600,100,'./');
+	
+若你有開發了有趣的功能，請您別吝嗇分享給我們! 讓我們也可以收錄於applied-method中。:)	
 
 ## Development
 
@@ -205,4 +231,4 @@ References
 
 Contribute to ptt-bot
 ----------
-我們都希望Ptt-bot這個專案能夠持續的進步! 若有發現臭蟲或問題，請幫我們在Issue中告知我們詳細情形。 若願意分享您的程式碼，也請歡迎Push Request。:)
+我們都希望Ptt-bot這個專案能夠持續的進步! 若有發現臭蟲或問題，請幫我們在Issue留言告知我們詳細情形。 若願意分享您的程式碼，也請歡迎Push Request。:)
