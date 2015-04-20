@@ -3,7 +3,7 @@
 	var iconv = require('iconv-lite'); 
 
 	/*  與Ptt-sever建立連線  */
-	myBot.login( 'chengrobot', 'ps2014', function(){ //請自行輸入帳號密碼
+	myBot.login(id,ps, function(){ //請自行輸入帳號密碼
 		
 		/*	登入完後即停留在主功能表 */	
 		console.log('已進入主功能表');
@@ -50,7 +50,7 @@
 	//或使用 applied-method	
 	
 	//與Ptt-sever建立連線  
-	myBot.login( 'chengrobot', 'ps2014', function(){ //請自行輸入帳號密碼
+	myBot.login(id,ps, function(){ //請自行輸入帳號密碼
 		
 		//登入完後即停留在主功能表	
 		console.log('已進入主功能表');
