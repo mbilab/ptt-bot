@@ -11,6 +11,41 @@ Ptt-bot is an open source node.js project for crawling data from **PTT**[4].
 
 ## How to use it?
 
+
+	
+		var bot = this;
+	
+		bot.toBoard(boardName,function(){
+		
+			console.log('已進入'+boardName+'板，接著收集文章!');
+		
+		});
+	
+		_indexForArticle = startIndex; //global
+	
+		for( var _=0;_<totalAmount;_++ ){
+		
+			bot.toArticle(_+_indexForArticle,function(){ 
+			
+				console.log('進入'+_indexForArticle+'文章中');
+			
+			});
+	
+			bot.loadArticle(function(){
+		
+				fs.writeFile(targetDic+'/'+boardName+_indexForArticle+'_withoutANSI.txt', iconv.encode( escapeANSI( bot.getArticle() ),'big5' ), function (err) {
+				
+					if (err) throw err;
+					console.log(boardName+_indexForArticle+' 已經被儲存囉!');
+					_indexForArticle++;
+				
+				});
+			
+			});
+		
+		}
+
+
 ## Development
 
 
@@ -50,7 +85,7 @@ Base-method
 ----------
  * login(id, ps, callback) 
  
- 執行登入ptt-sever的功能，登入完後會停留在 【主功能表】的頁面。開發者需要自行輸入機器人的帳號及密碼，並且回傳已連上ptt:23的connection物件。connection物件擁有write()等功能，connection物件詳細內容需參考Net原生套件[b1]。
+ 執行登入ptt-sever的功能，登入完後會停留在【主功能表】的頁面。開發者需要自行輸入機器人的帳號及密碼，並且回傳已連上ptt:23的connection物件。connection物件擁有write()等功能，connection物件詳細內容需參考Net原生套件[b1]。
  		
 		var conn = myBot.login('yourID','yourPassword',function(){	
 		
@@ -61,31 +96,79 @@ Base-method
 		
  * sendPressAnyKey(callback)
  
+ 當頁面要求"按任意鍵繼續"時，可以執行此函數。
+ 
  * sendCtrlL(callback)
+ 
+ 當頁面出現漏字時，可以執行此函數，要求重新傳送完整當頁頁面。
  
  * sendPageUp(callback)
  
+ 在【看板列表】和【文章列表】下皆可執行此函數，類似在批踢踢瀏覽時的往上翻頁的動作。
+ 
  * sendPageDown(callback)
+ 
+ 在【看板列表】和【文章列表】下皆可執行此函數，類似在批踢踢瀏覽時的往下翻頁的動作。
  
  * sendLeft(callback)
  
+ 類似在批踢踢瀏覽時按左鍵的功能。
+ 
  * sendRight(callback)
  
- * getScreen() 取得目前頁面含色碼的資料。
+ 類似在批踢踢瀏覽時按右鍵的功能。
  
- * getArticle()
+ * getScreen() 
+ 
+ 取得目前頁面含色碼的資料，一般放在某指令的回呼函數，以取得執行完該函數的頁面內容。
+ 
+ * getArticle() 
+ 
+ 當進入某篇文章時，若希望下載該篇文章完整內容，須先執行loadArticle()，並在loadArticle()的回呼函數執行getArticle()取得完整內容。
+ 			
+		/* 在某篇文章內 */	
+		bot.loadArticle(function(){
+			
+			/* 取得去除色碼的完整內容 */
+			console.log( escapeANSI( bot.getArticle() ) );
+
+		});
  
  * escapeANSI(str)
  
+ 去除頁面的所有色碼及位移碼。
+	
  * toMain(callback)
+ 
+ 在任何頁面下，皆可以執行此函數回到【主功能表】。
  
  * toBoard(BoardName,callback)
  
+ 在任何頁面下，皆可以執行此函數到某版的【文章列表】，請輸入正確版看板名稱。
+ 
  * toArticle(NumStr,callback)
 
+ 僅能在某版的【文章列表】下使用，進入某篇文章編號為NumStr的文章內。
+ 
  * loadArticle(callback)
  
+ 下載文章，僅能在【文章內】，通常和getArticle()連同使用，詳細舉例可以參考getArticle()內容。
+ 
  * execFuntion(func)
+ 
+ 執行函數的內容。因為Ptt-bot的後端為先紀錄開發者為機器人下的所有指令，紀錄完後才開始執行連線，因此若在指令間放置其他函數會造成問題
+		
+		/* 不行的寫法 */
+		sendPageUp();
+		console.log('hi');//這個函數會先被執行 
+		sendPageUp();
+  
+		/* 可以的寫法 */
+		sendPageUp();
+		execFuntion(function(){
+			console.log('hi');//會依序在翻第一次翻上頁後，才執行
+		});
+		sendPageUp();
  
 [b1]: https://nodejs.org/api/net.html
  
