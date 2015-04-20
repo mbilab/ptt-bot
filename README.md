@@ -159,12 +159,12 @@ Base-method
  執行函數的內容。因為Ptt-bot的後端為先紀錄開發者為機器人下的所有指令，紀錄完後才開始執行連線，因此若在指令間放置其他函數會造成問題
 		
 		/* 不行的寫法 */
-		sendPageUp();
-		console.log('hi');//這個函數會先被執行 
+		sendPageUp();//第一次翻上頁
+		console.log('hi');//此函數會比第一次翻上頁還要先被執行 
 		sendPageUp();
   
 		/* 可以的寫法 */
-		sendPageUp();
+		sendPageUp();//第一次翻上頁
 		execFuntion(function(){
 			console.log('hi');//會依序在翻第一次翻上頁後，才執行
 		});
@@ -175,9 +175,12 @@ Base-method
 Applied-method
 ----------
  * collectArticleFromBoard(boardName,startIndex,totalAmount,targetDic)
-
+ 
+ 收集某個版的文章內容(含色碼)，從編號為startIndex的文章開始，收集共totalAmount篇文章，收集後的文章內容，存放於targetDic路徑中。
+ 
  * collectArticleFromBoardWithoutANSI(boardName,startIndex,totalAmount,targetDic)
   
+ 收集某個版的文章內容(不含色碼)，從編號為startIndex的文章開始，收集共totalAmount篇文章，收集後的文章內容，存放於targetDic路徑中。 
 
 References
 ---------
@@ -202,3 +205,4 @@ References
 
 Contribute to ptt-bot
 ----------
+我們都希望Ptt-bot這個專案能夠持續的進步! 若有發現臭蟲或問題，請幫我們在Issue中告知我們詳細情形。 若願意分享您的程式碼，也請歡迎Push Request。:)
