@@ -49,6 +49,7 @@ Require
 Base-method
 ----------
  * login(id, ps, callback) 
+ 
  執行登入ptt-sever的功能，登入完後會停留在 【主功能表】的頁面。開發者需要自行輸入機器人的帳號及密碼，並且回傳已連上ptt:23的connection物件。connection物件擁有write()等功能，connection物件詳細內容需參考Net原生套件[b1]。
  		
 		var conn = myBot.login('yourID','yourPassword');
