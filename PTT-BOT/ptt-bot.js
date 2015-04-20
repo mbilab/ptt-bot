@@ -139,8 +139,8 @@
 	
 	/**
 	 * Create connection with PTT sever
-	 * param	string	id			user id for login to PTT sever
-	 * param	string	ps			user password for login to PTT sever
+	 * param	string	id			developer id for login to PTT sever
+	 * param	string	ps			developer password for login to PTT sever
 	 * param	function	callback	function that is executed after login to PTT sever 
 	 * return	object				the connection between client and sever
 	 */
@@ -459,10 +459,10 @@
 	
 	/**
 	 * Collect a consequent of articles started from certain serial number in certain board.(with ANSI code) 
-	 * param	string	boardName			Board name that developer eager to collect
-	 * param	int	startIndex			article serial number that developer eager to start
-	 * param	int	startIndex			the amount of articles that developer eager to collect
-	 * param	string	targetDic			the path for dictionary wherever developer wish to store the articles
+	 * param	string	boardName		Board name that developer eager to collect
+	 * param	int	startIndex		article serial number that developer eager to start
+	 * param	int	startIndex		the amount of articles that developer eager to collect
+	 * param	string	targetDic		the path for dictionary wherever developer wish to store the articles
 	 * return	None
 	 */		
 	function collectArticleFromBoard(boardName,startIndex,totalAmount,targetDic){
@@ -504,10 +504,10 @@
 	
 	/**
 	 * Collect a consequent of articles started from certain serial number in certain board.(without ANSI code) 
-	 * param	string	boardName			Board name that developer eager to collect
-	 * param	int	startIndex			article serial number that developer eager to start
-	 * param	int	startIndex			the amount of articles that developer eager to collect
-	 * param	string	targetDic			the path for dictionary wherever developer wish to store the articles
+	 * param	string	boardName		Board name that developer eager to collect
+	 * param	int	startIndex		article serial number that developer eager to start
+	 * param	int	startIndex		the amount of articles that developer eager to collect
+	 * param	string	targetDic		the path for dictionary wherever developer wish to store the articles
 	 * return	None
 	 */		
 	function collectArticleFromBoardWithoutANSI(boardName,startIndex,totalAmount,targetDic){
@@ -652,7 +652,7 @@
 
 	/* 	
 		Add callback function for null command, mostly used for 
-		state transfer internally before execute user's callback 
+		state transfer internally before execute developer's callback 
 		function.
 	
 	*/
@@ -672,7 +672,7 @@
 
 	function getAnsiInfo(){
 		/**	
-			when user need ansi information. generate it.
+			when developer need ansi information. generate it.
 			return both big5Arr and AnsiArr.
 		**/
 	}
