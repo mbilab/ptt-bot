@@ -231,4 +231,4 @@ References
 
 Contribute to ptt-bot
 ----------
-我們都希望Ptt-bot這個專案能夠持續的進步! 若有發現臭蟲或問題，請幫我們在Issue留言告知我們詳細情形。 若願意分享您的程式碼，也請歡迎Push Request。:)
+我們都希望Ptt-bot這個專案能夠持續的進步! 若有發現臭蟲或問題，請幫我們在Issue留言告知我們詳細情形。 若願意分享您的程式碼，也請歡迎Pull Request。:)
